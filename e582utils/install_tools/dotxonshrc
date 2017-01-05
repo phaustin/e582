@@ -1,0 +1,5 @@
+$PATH.append(r'c:\msys64/usr/bin')
+$HOME=r'c:\Users\phil'
+$PYTHONPATH=r'c:\Users\phil\pythonlibs'
+#print(list(__xonsh_env__.keys()))
+

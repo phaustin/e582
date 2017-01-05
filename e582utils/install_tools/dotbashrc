@@ -1,0 +1,2 @@
+export PATH="$HOME/mini35/bin:$PATH"
+export PHYTHONPATH="$HOME/repos/pythonlibs"
