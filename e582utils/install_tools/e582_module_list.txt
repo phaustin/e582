@@ -1,0 +1,15 @@
+#version 0.1
+anaconda-client
+jupyter
+notebook
+scipy
+numpy
+ipython
+qtconsole
+spyder
+numba
+matplotlib
+pandas
+netCDF4
+h5py
+
