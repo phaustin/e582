@@ -12,4 +12,5 @@ matplotlib
 pandas
 netCDF4
 h5py
+git
 
