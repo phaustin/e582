@@ -2,13 +2,13 @@
   download a file named filename from the atsc301 downloads directory
   and save it as a local file with the same name.
 
-  command line example::
+  to run from the command line::
 
-    python -m a301utils.a301_readfile photon_data.csv
+    python -m e582utils.a301_readfile photon_data.csv
 
-  module example::
+  to run from a python script::
 
-    from a301utils.a301_readfile import download
+    from e582utils.data_read import download
     download('photon_data.csv')
 
 """
@@ -22,7 +22,7 @@ import shutil
 def download(filename):
     """
     copy file filename from http://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads to 
-    the local directory
+    the local directory.  If local file exists, report file size and quit.
 
     
     Parameters

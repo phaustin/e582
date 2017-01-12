@@ -83,30 +83,16 @@ import pdb
 
 def do_hist(data_vec,numbins,minval,maxval):
     #
-    # Q1) describe in words the 6 variables defined between
-    # here and the for loop, include what the array shapes are when
-    # given 
-    #
-    #  data_vec -- data pixel values to be binned
-    #  binsize -- width of the histogram bin
-    #  bin_count -- vector (length 30) holding number of pixels in each of the bins
-    #  bin_index  -- vector (length 800) holding longitude values to be binned
-    #  lowcount -- number of longitudes smaller than left bin
-    #  lowcount -- number of longitudes bigger than right bin
-    #  
-    #
-    #  turn question 1 info on or off with q1 flag
+    # Q1) describe in words the 4 variables defined 
+    # in the function call including the array shape of 
+    # data_vec the first time it is called below 
     #
     #
-    q1=False
-    if q1:
-        minval = -124
-        maxval = -93
-        numbins=30
-        #
+    #
+    #
     # 
     #
-    # Q2) Why did I set bin_index to
+    # Q2) Why did I initialize bin_index below to
     #      -1 instead of 0?
     #
     #
@@ -118,12 +104,18 @@ def do_hist(data_vec,numbins,minval,maxval):
     lowcount=0
     highcount=0 
     #
-    #  Q3) which bin number would longitude = -102 go into?
+    #  Q3) given the following values:
+    #
+    #   minval = -124
+    #   maxval = -93
+    #   numbins=30
+    #
+    # which bin number would longitude = -102 go into?
     #
     #
     #
     #
-    #  Q4) what are the left and right bin edges of this bin?
+    #  Q4) what are the left and right bin edges of the bin you in Q3?
     #
     #
     #
@@ -145,7 +137,8 @@ def do_hist(data_vec,numbins,minval,maxval):
     bin_edges = np.array(bin_edges)
     out = dict(index_vec=bin_index,count_vec=bin_count,edges_vec=bin_edges,
              lowcount=lowcount,highcount=highcount)
-    if q1:
+    debug = False
+    if debug:
         #
         # stop the python debugger here to print variables
         #
