@@ -6,7 +6,6 @@ scipy
 numpy
 ipython
 qtconsole
-spyder
 numba
 matplotlib
 pandas
