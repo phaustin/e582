@@ -1,10 +1,13 @@
 """
-  download a file named filename from the atsc301 downloads directory
-  and save it as a local file with the same name.
+  e582utils.data_read 
+  ___________________
+
+  downloads a file named filename from the atsc301 downloads directory
+  and save it as a local file with the same name. 
 
   to run from the command line::
 
-    python -m e582utils.a301_readfile photon_data.csv
+    python -m e582utils.data_read photon_data.csv
 
   to run from a python script::
 
@@ -68,13 +71,20 @@ def download(filename):
     print('downloaded {}\nsize = {}'.format(filename,the_size))
     return None
 
+def make_parser():
+    """
+    set up the command line arguments needed to call the program
+    """
+    linebreaks = argparse.RawTextHelpFormatter
+    parser = argparse.ArgumentParser(
+        formatter_class=linebreaks, description=__doc__.lstrip())
+    parser.add_argument('filename', type=str, help='name of file to download')
+    return parser
+
 
 if __name__ == "__main__":
 
-    linebreaks=argparse.RawTextHelpFormatter
-    descrip=__doc__.lstrip()
-    parser = argparse.ArgumentParser(formatter_class=linebreaks,description=descrip)
-    parser.add_argument('filename',type=str,help='name of file to download')
+    parser = make_parser()
     args=parser.parse_args()
     download(args.filename)
    

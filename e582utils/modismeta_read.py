@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 """
-   defines a class that reads the NASA hdfeos CoreMetadata.0 attribute
-   and stores the orbitnumber, equator crossing time, 
-   image lat/lon corners
+  e582utils.modismeta_read 
+  ________________________
 
-   the function parseMeta creates an instance of this class
-   and returns a dictionary containing the information
+  parses a Modis Level1b CoreMetata.0 string and extracts
+  a dictionary. 
+
+  to run from the command line::
+
+    python -m e582utils.modismeta_read  level1b_file.h5
+
+  to run from a python script::
+
+    from e582utils.modismeta_read import parseMeta
+    out=parseMeta(h5_file)
 """
 from __future__ import print_function
 
@@ -116,36 +124,34 @@ def parseMeta(filename):
     outDict: dict
         key, value:
 
-         lat_list: np.array
-            4 corner latitudes
-         lon_list: np.array
-            4 corner longitudes
-         max_lat: float
-            largest corner latitude
-         min_lat: float
-            smallest corner latitude
-         max_lon: float
-            largest corner longitude
-         min_lon: float
-            smallest corner longitude
-         daynight: str
-            'Day' or 'Night'
-         starttime: str
-            swath start time in UCT
-         stoptime: str
-            swath stop time in UCT
-         startdate: str
-            swath start datein UCT
-         orbit: str
-            orbit number
-         equatordate: str
-            equator crossing date in UCT
-         equatortime: str
-            equator crossing time in UCT
-         nasaProductionDate: str
-            date file was produced, in UCT
-
-    
+    lat_list: np.array
+        4 corner latitudes
+    lon_list: np.array
+        4 corner longitudes
+    max_lat: float
+        largest corner latitude
+    min_lat: float
+        smallest corner latitude
+    max_lon: float
+        largest corner longitude
+    min_lon: float
+        smallest corner longitude
+    daynight: str
+        'Day' or 'Night'
+    starttime: str
+        swath start time in UCT
+    stoptime: str
+        swath stop time in UCT
+    startdate: str
+        swath start datein UCT
+    orbit: str
+        orbit number
+    equatordate: str
+        equator crossing date in UCT
+    equatortime: str
+        equator crossing time in UCT
+    nasaProductionDate: str
+        date file was produced, in UCT
     """
     if not isinstance(filename,str):
         raise Exception('expecting an h5 filename, got {}'.format(filename))
@@ -176,9 +182,19 @@ def parseMeta(filename):
     outDict.update(corners)
     return outDict
 
+def make_parser():
+    """
+    set up the command line arguments needed to call the program
+    """
+    linebreaks = argparse.RawTextHelpFormatter
+    parser = argparse.ArgumentParser(
+        formatter_class=linebreaks, description=__doc__.lstrip())
+    parser.add_argument('h5_file', type=str, help='name of h5 file')
+    return parser
+
+
 if __name__=='__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('h5_file',type=str,help='name of h5 file')
-    args=parser.parse_args()
+    parser = make_parser()
+    parser.parse()
     out=parseMeta(args.h5_file)
     print(out)
