@@ -21,7 +21,14 @@ import sys
 from io import StringIO
 
 
-def print_attrs(name, obj,fileobj):
+def print_attrs(obj_name, obj,fileobj):
+    """
+    print attributes of obj with name obj_name to
+    the StringIO instance fileobj
+
+    this function is called recursively by h5py.visititems()
+
+    """
     if obj.parent.name == '/':
         fileobj.write('{}\n'.format('_' * 15))
         fileobj.write('root group object {}\n'.format(repr(obj)))
@@ -33,7 +40,7 @@ def print_attrs(name, obj,fileobj):
             fileobj.write("    {}: {}\n".format(key, val))
     except IOError:
         fileobj.write('this is an HDFStore pandas dataframe\n')
-        fileobj.write('{} {}\n'.format(name, obj))
+        fileobj.write('{} {}\n'.format(the_name, obj))
         fileobj.write('{}\n'.format('-' * 20))
 
 
@@ -59,7 +66,7 @@ def dumph5(filename):
     with h5py.File(filename, 'r') as infile:
         with StringIO() as store:
             #
-            # visititems functions only take one argument sot
+            # visititems functions only take one argument so
             # make a closure tat includes the fileobj store
             #
             def callback(name,obj):
