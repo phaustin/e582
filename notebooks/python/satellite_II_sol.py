@@ -13,7 +13,7 @@
 
 # In[1]:
 
-from a301utils.a301_readfile import download
+from e582utils.data_read import download
 import numpy as np
 import h5py
 import sys
@@ -185,7 +185,7 @@ lat_hist=do_hist(lat_flat,numbins,lat_min,lat_max)
 print(list(lon_hist.keys()))
 
 
-# In[10]:
+# In[9]:
 
 def find_bins(lon_hist,lat_hist,lon_index,lat_index):
     """
@@ -241,7 +241,7 @@ def find_bins(lon_hist,lat_hist,lon_index,lat_index):
 
 # ### use find_bins to pick out the pixels near -111.1 deg W, 50.5 deg N
 
-# In[11]:
+# In[10]:
 
 # Q8) Explain in words why calling np.abs().argmin() in the first line below produces
 #  the index of the  bin edge nearest 50.5 
@@ -260,13 +260,14 @@ def find_bins(lon_hist,lat_hist,lon_index,lat_index):
 #  number was greater than 0.
 # 
 #
-
+import numpy as np
 lat_bin=np.abs(lat_hist['edges_vec'] - (50.5)).argmin()
 lon_bin=np.abs(lon_hist['edges_vec'] - (-111.1)).argmin()
 (lon_bin,lat_bin)
+print(help(np.argmin))
 
 
-# In[12]:
+# In[11]:
 
 #
 #
@@ -282,7 +283,7 @@ lat_center = np.sum(lat_vals)/2.
 (lon_center,lat_center)
 
 
-# In[13]:
+# In[12]:
 
 pixel_ids = find_bins(lon_hist,lat_hist,lon_bin,lat_bin)
 print('pixels in both lon bin {} and lat bin {}:\n\n {}'.format(lon_bin,lat_bin,pixel_ids))
@@ -290,7 +291,7 @@ print('pixels in both lon bin {} and lat bin {}:\n\n {}'.format(lon_bin,lat_bin,
 
 # ### Now pull the radiances for these pixels
 
-# In[14]:
+# In[13]:
 
 radiances = chan31_calibrated.ravel()[pixel_ids]
 fig, ax = plt.subplots(1,1)

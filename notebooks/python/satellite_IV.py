@@ -176,6 +176,14 @@ lon_centers=(lon_hist['edges_vec'][1:] + lon_hist['edges_vec'][:-1])/2.
 lon_array,lat_array=np.meshgrid(lon_centers,lat_centers)
 
 
+# In[8]:
+
+import numpy as np
+lon,lat=np.meshgrid([1,2,3,4,5],[100,101,102,104])
+lon
+lat
+
+
 # In[13]:
 
 fig,ax = plt.subplots(1,1,figsize = (10,14))

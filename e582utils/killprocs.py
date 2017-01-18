@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 """
-   example:
+kill all processes containing a string
 
-   python -m e582utils.killprocs mini3
+example: python -m e582utils.killprocs mini3
 
-   will kill all process weith mini3 in the name
-   https://pythonhosted.org/psutil/
+will kill all process with mini3 in the name
+
+requires this module
+https://pythonhosted.org/psutil/
 """
 import psutil
 from e582utils.helper_funs import make_tuple
@@ -18,16 +20,21 @@ def on_terminate(proc):
     print("process {} terminated with exit code {}".format(
                proc, proc.returncode))
 
+def killit(snip):
+    """
+    kill all processs with names containing the string snip
 
-if __name__ == "__main__":
+    Parameters
+    ----------
 
-    linebreaks = argparse.RawTextHelpFormatter
-    descrip = textwrap.dedent(globals()['__doc__'])
-    parser = argparse.ArgumentParser(formatter_class=linebreaks,
-                                     description=descrip)
-    parser.add_argument('snip', type=str, help='string in processname')
-    args = parser.parse_args()
+    snip: str
+      process name string to search for
 
+    Returns
+    -------
+
+    kills processes as side effect
+    """
     keepit = {}
     keys = ['time', 'name', 'cmdline', 'proc']
     for proc in psutil.process_iter():
@@ -38,7 +45,7 @@ if __name__ == "__main__":
         except (psutil.ZombieProcess, psutil.AccessDenied,
                 psutil.NoSuchProcess):
             pass
-    print('in killprocs.py, looking for {}'.format(args.snip))
+    print('in killprocs.py, looking for {}'.format(snip))
     #
     # don't kill this process or the emacs python parser
     #
@@ -60,4 +67,22 @@ if __name__ == "__main__":
 
     for p in alive:
         p.kill()
+
+def make_parser():
+    """
+    set up the command line arguments needed to call the program
+    """
+    linebreaks = argparse.RawTextHelpFormatter
+    parser = argparse.ArgumentParser(
+        formatter_class=linebreaks, description=__doc__.lstrip())
+    parser.add_argument('snip', type=str, help='string in processname')
+    return parser
+    
+
+if __name__ == "__main__":
+
+    parser = make_parser()
+    args = parser.parse_args()
+    killit(args.snip)
+
         
