@@ -2,13 +2,13 @@
 """
    example:
 
-   python -m pyutils.killprocs mini3
+   python -m e582utils.killprocs mini3
 
    will kill all process weith mini3 in the name
    https://pythonhosted.org/psutil/
 """
 import psutil
-from pyutils.helper_funs import make_tuple
+from e582utils.helper_funs import make_tuple
 
 import argparse
 import textwrap

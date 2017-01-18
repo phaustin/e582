@@ -43,12 +43,12 @@ goto :EOF
 :no_git
 rem Set new prompt
 PROMPT %ConEmuPrompt1%%ConEmuPrompt2%%ConEmuPrompt3%
-PROMPT $P$G$_$G$S
+PROMPT $P$Gcmd$_$G$S
 @echo "running %USERPROFILE%\cmdinit.cmd"
 set HOME=%USERPROFILE%
-set PATH=C:\Program Files\Docker\Docker\Resources\bin;c:\msys64\usr\bin;c:\Program Files/HDF_Group/H4TOH5/2.2.2/bin;%PATH%
-set PYTHONPATH=%HOME%\repos\pythonlibs;%HOME%\repos\a301_2016
+set PATH=%USERPROFILE%\repos\pythonlibs\e582utils\windows\scripts;C:\Program Files\Docker\Docker\Resources\bin;c:\msys64\usr\bin;c:\Program Files/HDF_Group/H4TOH5/2.2.2/bin;c:/Program Files (x86)/Microsoft VS Code/bin;%PATH%
+set PYTHONPATH=%USERPROFILE%\bin;%USERPROFILE%\repos\pythonlibs;%USERPROFILE%\repos\a301_2016
 set PWD=%~dp0
-set e582=%HOME%\repos\e582_2016
-set h=%HOME%
+set e582=%USERPROFILE%\repos\e582_2016
+set h=%USERPROFILE%
 
