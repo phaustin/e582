@@ -31,7 +31,6 @@ if "%ConEmuIsAdmin%" == "ADMIN" (
 
 rem Finally reset color and add space
 set ConEmuPrompt3=$E[m$S$E]9;12$E\
-
 if /I "%~1" == "/git" goto git
 if /I "%~1" == "-git" goto git
 goto no_git
@@ -44,7 +43,6 @@ goto :EOF
 rem Set new prompt
 PROMPT %ConEmuPrompt1%%ConEmuPrompt2%%ConEmuPrompt3%
 rem this is a simpler black and white choice
-@echo "running %USERPROFILE%\cmdinit.cmd"
 set E582MASTER=%USERPROFILE%\repos\pythonlibs
 set HOME=%USERPROFILE%
 set PATH=%E582MASTER%\e582utils\windows\scripts;C:\Program Files\Docker\Docker\Resources\bin;c:\msys64\usr\bin;c:\Program Files/HDF_Group/H4TOH5/2.2.2/bin;c:/Program Files (x86)/Microsoft VS Code/bin;%PATH%
@@ -52,4 +50,7 @@ set PYTHONPATH=%E582MASTER%
 set PWD=%~dp0
 set ecode=%USERPROFILE%\repos\e582_2016
 set h=%USERPROFILE%
+@echo running %~dp0CmdInit.cmd
+rem to run this from conemu set the conemu cmd task
+rem to cmd.exe /k "%UserProfile%\repos\pythonlibs\e582utils\install_tools\shell_rcfiles\CmdInit.cmd"
 
