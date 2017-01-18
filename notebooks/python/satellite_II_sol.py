@@ -83,16 +83,14 @@ import pdb
 
 def do_hist(data_vec,numbins,minval,maxval):
     #
-    # Q1) describe in words the 6 variables defined between
+    # Q1) describe in words the 4 variables defined between
     # here and the for loop, include what the array shapes are when
     # given 
     #
     #  data_vec -- data pixel values to be binned
-    #  binsize -- width of the histogram bin
-    #  bin_count -- vector (length 30) holding number of pixels in each of the bins
-    #  bin_index  -- vector (length 800) holding longitude values to be binned
-    #  lowcount -- number of longitudes smaller than left bin
-    #  lowcount -- number of longitudes bigger than right bin
+    #  numbins-- number of bins in the histogram
+    #  minval -- value of the left edge of the histogram bins
+    #  maxval -- value of the right edge of th histogram bins
     #  
     #
     #  turn question 1 info on or off with q1 flag
@@ -164,8 +162,9 @@ def do_hist(data_vec,numbins,minval,maxval):
 
 # Q5) what do these two statements do?
 #
-#  they select the first 800 longitudes in row 0
-#  and the first 900 latitudes in 0
+#  they first flatten the two-dimensional lon and lat arrays to
+#  1 dimension of size rows x columns
+#   then they select the first 800 and 900 values respectively of the lon and lat arrays
 #
 
 lon_flat = lon_data.ravel()[:800]
@@ -254,7 +253,9 @@ def find_bins(lon_hist,lat_hist,lon_index,lat_index):
 #  and 0.1 for the right edge (say index 30), the minimum will be 0.1 and the index returned
 #  by argmin will be the location of that minimum -- the index of the right edge = 30
 #  That index will be 1 higher than the index of the bin (29), and so to get the bin index 
-#  in this case we would need to subtract 1 from 30.  To check to see that we have a  right edge
+#  in this case we would need to subtract 1 from 30.  
+
+#  To check to see that we have a  right edge
 #  and need to subtract 1, we could calculate np.sign(lat_hist[30] - 50.5) and subtract 1 if the
 #  number was greater than 0.
 # 
