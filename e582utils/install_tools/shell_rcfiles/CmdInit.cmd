@@ -43,6 +43,7 @@ goto :EOF
 rem Set new prompt
 PROMPT %ConEmuPrompt1%%ConEmuPrompt2%%ConEmuPrompt3%
 rem this is a simpler black and white choice
+PROMPT $P$Gcmd$_$G$S
 set E582MASTER=%USERPROFILE%\repos\pythonlibs
 set HOME=%USERPROFILE%
 set PATH=%E582MASTER%\e582utils\windows\scripts;C:\Program Files\Docker\Docker\Resources\bin;c:\msys64\usr\bin;c:\Program Files/HDF_Group/H4TOH5/2.2.2/bin;c:/Program Files (x86)/Microsoft VS Code/bin;%PATH%
