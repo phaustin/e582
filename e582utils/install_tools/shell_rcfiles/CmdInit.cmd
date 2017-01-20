@@ -53,5 +53,5 @@ set ecode=%USERPROFILE%\repos\e582_2016
 set h=%USERPROFILE%
 @echo running %~dp0CmdInit.cmd
 rem to run this from conemu set the conemu cmd task
-rem to cmd.exe /k "%UserProfile%\repos\pythonlibs\e582utils\install_tools\shell_rcfiles\CmdInit.cmd"
+rem to: cmd.exe /k "%UserProfile%\repos\pythonlibs\e582utils\install_tools\shell_rcfiles\CmdInit.cmd"
 
