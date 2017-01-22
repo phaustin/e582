@@ -195,6 +195,6 @@ def make_parser():
 
 if __name__=='__main__':
     parser = make_parser()
-    parser.parse()
+    args=parser.parse()
     out=parseMeta(args.h5_file)
     print(out)
