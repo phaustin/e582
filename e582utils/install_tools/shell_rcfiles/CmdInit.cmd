@@ -1,5 +1,7 @@
 @rem  original CmdInit.cmd file is installed at
 @rem c:/Program Files/ConEmu/ConEmu/CmdInit.cmd
+@rem to see prompt customization codes, do
+@rem prompt /?
 @echo off
 rem this is a simple black and white prompt choice
 PROMPT $P$Gcmd$_$G$S

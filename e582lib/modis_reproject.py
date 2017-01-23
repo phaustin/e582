@@ -248,6 +248,9 @@ def write_h5(out_file=None,channels=None,area_def_args=None,
              basemap_args=None,geotiff_args=None,
              fill_value=None,chan_list=None,in_file=None):
     """
+    Create an hdf5 file that contains resampled modis level1b data (channels)
+    and supporting map projection dictionaries that can be used to
+    create a Basemap instance or a geotiff file
 
 
     Parameters
