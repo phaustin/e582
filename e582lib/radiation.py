@@ -1,8 +1,12 @@
+"""
+Functions to compute thermal radiation relations for the Planck function
+
+"""
 import numpy as np
 import pytest
 from scipy.constants import c, h, k
 #
-# get Stull's c_1 and c_2 from fundamental constants
+# combine fundamental constants into two coefficients
 #
 # c=2.99792458e+08  #m/s -- speed of light in vacuum
 # h=6.62606876e-34  #J s  -- Planck's constant
@@ -14,9 +18,9 @@ sigma = 2. * np.pi**5. * k**4. / (15 * h**3. * c**2.)
 print(sigma)
 
 
-def Elambda(wavel, Temp):
+def Flambda(wavel, Temp):
     """
-    Calculate the blackbody radiant exitence (Stull 2.13)
+    Calculate the blackbody radiant exitence: pi*Blambda
 
     Parameters
     ----------
@@ -30,16 +34,16 @@ def Elambda(wavel, Temp):
     Returns
     -------
 
-    Elambda:  float or arr
+    Flambda:  float or arr
            monochromatic radiant exitence (W/m^2/m)
     """
-    Elambda_val = c1 * np.pi / (wavel**5. * (np.exp(c2 / (wavel * Temp)) - 1))
-    return Elambda_val
+    Flambda_val = c1 * np.pi / (wavel**5. * (np.exp(c2 / (wavel * Temp)) - 1))
+    return Flambda_val
 
 
 def Blambda(wavel, Temp):
     """
-    Calculate the blackbody radiance (Stull 2.13)
+    Calculate the blackbody radiance (Petty 6.1)
 
     Parameters
     ----------
