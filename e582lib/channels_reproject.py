@@ -19,11 +19,7 @@ import numpy as np
 import pyproj
 import pyresample
 from pyresample import kd_tree, geometry
-from matplotlib import pyplot as plt
-from e582utils.data_read import download
-from mpl_toolkits.basemap import Basemap
 import json
-from e582lib.modis_chans import chan_dict
 import pdb
 
 
@@ -204,8 +200,8 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     #
     proj_id = 'laea'
     datum = 'WGS84'
-    lat_0_txt = '{lat_0:5.2f}'.format_map(corner_dict)
-    lon_0_txt = '{lon_0:5.2f}'.format_map(corner_dict)
+    lat_0_txt = '{lat_0:17.13f}'.format_map(corner_dict).strip()
+    lon_0_txt = '{lon_0:17.13f}'.format_map(corner_dict).strip()
     area_dict = dict(datum=datum, lat_0=lat_0_txt, lon_0=lon_0_txt, proj=proj_id, units='m')
     prj = pyproj.Proj(area_dict)
     x, y = prj(corner_dict['lon_list'], corner_dict['lat_list'])
@@ -319,7 +315,7 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
         basemap_args=basemap_args,
         geotiff_args=geotiff_args,
         fill_value=fill_value)
-    print('completed modisl1b_resample')
+    print('completed channels_resample')
     return out_dict
 
 
@@ -330,9 +326,9 @@ def write_h5(out_file=None,
              geotiff_args=None,
              fill_value=None,
              chan_list=None,
-             in_file=None):
+             comments=None):
     """
-    Create an hdf5 file that contains resampled modis level1b data (channels)
+    Create an hdf5 file that contains resampled data (channels)
     and supporting map projection dictionaries that can be used to
     create a Basemap instance or a geotiff file
 
@@ -354,35 +350,35 @@ def write_h5(out_file=None,
     fill_value: float
        number that denotes missing data
     chan_list: list
-       list of string channel names used by modis_chans.chan_dict to
-       select modis channels in the channels array
+       list of string channel names that become the dataset name, 
+       for each channel. length should be same
+       as last dimension in channels 
+    comments: str
+       history, author, etc. as single string
 
     Returns
     -------
 
        side effect: write information into hdf5 file outfile
     """
-    print('hit: ', channels.shape)
+    print('inside write_h5: ', channels.shape)
     geotiff_string = json.dumps(geotiff_args, indent=4)
     basemap_string = json.dumps(basemap_args, indent=4)
-    print('here: --\n{}--\n'.format(area_def_args))
+    print('inside write_h5: area_def --\n{}--\n'.format(area_def_args))
     area_def_string = json.dumps(area_def_args, indent=4)
     height, width, num_chans = channels.shape
     with h5py.File(out_file, 'w') as f:
         group = f.create_group('channels')
-        for index, chan_name in enumerate(chan_list):
+        for index,chan_name in enumerate(chan_list):
             the_chan = channels[:, :, index]
             dset = group.create_dataset(
                 chan_name, the_chan.shape, dtype=the_chan.dtype)
             dset[...] = the_chan[...]
-            dset.attrs['units'] = chan_dict[chan_name]['units']
-            dset.attrs['wavelength_um'] = chan_dict[chan_name]['wavelength_um']
-            dset.attrs['modis_chan'] = chan_name
         f.attrs['geotiff_args'] = geotiff_string
         f.attrs['basemap_args'] = basemap_string
         f.attrs['area_def_args'] = area_def_string
         f.attrs['fill_value'] = fill_value
-        f.attrs['level1b_file'] = in_file
+        f.attrs['comments'] = comments
     return None
 
 

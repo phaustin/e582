@@ -1,3 +1,4 @@
+#https://modis.gsfc.nasa.gov/about/specifications.php
 chan_dict={
     "1": {
         "field_name": "EV_250_Aggr1km_RefSB",

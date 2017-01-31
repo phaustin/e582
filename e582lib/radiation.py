@@ -15,7 +15,7 @@ from scipy.constants import c, h, k
 c1 = 2. * h * c**2.
 c2 = h * c / k
 sigma = 2. * np.pi**5. * k**4. / (15 * h**3. * c**2.)
-print(sigma)
+#print(sigma)
 
 
 def Flambda(wavel, Temp):
