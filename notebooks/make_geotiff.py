@@ -182,7 +182,7 @@ basemap_args['resolution']='h'
 bmap = Basemap(**basemap_args)
 
 
-def make_basemap_xy(rownums,colnums,bmap,transform):
+def make_xy(rownums,colnums,transform):
     xline=[]
     yline=[]
     for the_col in colnums:
@@ -192,10 +192,28 @@ def make_basemap_xy(rownums,colnums,bmap,transform):
         x,y= transform*(0,the_row)
         yline.append(y)
     xline,yline=np.array(xline),np.array(yline)
-    xline = xline + bmap.projparams['x_0']
-    yline = yline + bmap.projparams['y_0']
     xvals, yvals = np.meshgrid(xline,yline)
     return xvals,yvals
+
+
+def make_basemap_xy(rownums,colnums,bmap,transform):
+    xvals,yvals=make_xy(rownums,colnums,transform)
+    xvals = xvals + bmap.projparams['x_0']
+    yvals=yvals + bmap.projparams['y_0']
+    return xvals,yvals
+
+
+# def get_corners(width,height,projection,transform):
+#     """
+#     return crnr lats  and lons centered on lon_0,lat_0
+#     """
+#     lon_0,lat_0 = projection(0,0,inverse=True)
+    
+#     col_0,row_0 = ~transform*(0,0)
+#     col_slice=slice(int(col_0 - width/2.),int(col_0 + width/2.))
+#     row_slice=slice(int(row_0 - width/2.),int(row_0 + width/2.))
+#     return col_slice,row_slice
+
 
 
 colnums=np.arange(ll_col,ur_col,dtype=np.int)
