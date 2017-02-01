@@ -184,7 +184,27 @@ result_dict['basemap_args']
 
 
 
-def make_xy(rownums,colnums,transform):
+def make_xy(ur_row,ll_row,ll_col,ur_col,transform):
+    """
+    get map coordinates for a slice
+    note that row count increases from ur_row to ll_row
+
+    Parameters
+    ----------
+
+    ur_row,ll_row,ll_col,ur_col
+       slice edges
+    transform:
+       affine transform for image
+
+    Returns
+    -------
+
+    xvals, yvals: ndarrays 
+       map coords with shape of row_slice by colslice
+    """
+    rownums=np.arange(ur_row,ll_row)
+    colnums=np.arange(ll_col,ur_col)
     xline=[]
     yline=[]
     for the_col in colnums:
@@ -198,8 +218,29 @@ def make_xy(rownums,colnums,transform):
     return xvals,yvals
 
 
-def make_basemap_xy(rownums,colnums,bmap,transform):
-    xvals,yvals=make_xy(rownums,colnums,transform)
+def make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform):
+    """
+    get map coordinates for a slice including basemap
+    easting ing and northing
+    note that row count increases from ur_row to ll_row
+
+    Parameters
+    ----------
+
+    ur_row,ll_row,ll_col,ur_col
+       slice edges
+    bmap: basemap instance
+       used to get easting and northing
+    transform:
+       affine transform for image
+
+    Returns
+    -------
+
+    xvals, yvals: ndarrays 
+       map coords with shape of row_slice by colslice
+    """
+    xvals,yvals=make_xy(ur_row,ll_row,ll_col,ur_col,transform)
     xvals = xvals + bmap.projparams['x_0']
     yvals=yvals + bmap.projparams['y_0']
     return xvals,yvals
@@ -289,9 +330,7 @@ basemap_args=result_dict['basemap_args']
 basemap_args['ax'] = ax
 basemap_args['resolution']='i'
 bmap = Basemap(**basemap_args)
-colnums=np.arange(ll_col,ur_col,dtype=np.int)
-rownums=np.arange(ur_row,ll_row,dtype=np.int)
-xvals,yvals = make_basemap_xy(rownums,colnums,bmap,transform)
+xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform)
 ll_x,ur_x=xvals[-1,0],xvals[0,-1]
 ll_y,ur_y =yvals[-1,0],yvals[0,-1]
 col=bmap.pcolormesh(xvals,yvals,ndvi_zoom,cmap=cmap,norm=the_norm)
@@ -319,7 +358,11 @@ bmap = Basemap(**basemap_args)
 height,width=ndvi.shape
 new_rownums=np.arange(0,height)
 new_colnums=np.arange(0,width)
-xvals,yvals = make_basemap_xy(new_rownums,new_colnums,bmap,transform)
+ur_row=0
+ll_row=height
+ll_col=0
+ur_col=width
+xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform)
 row_slice,col_slice=slice_dict['row_slice'],slice_dict['col_slice']
 xvals_s,yvals_s,ndvi_s = xvals[row_slice,col_slice],yvals[row_slice,col_slice],ndvi[row_slice,col_slice]
 ll_x,ll_y,ur_x,ur_y = [xy_dict[key] for key in ['ll_x','ll_y','ur_x','ur_y']]
@@ -352,9 +395,11 @@ basemap_args['ax'] = ax
 basemap_args['resolution'] = 'h'
 bmap = Basemap(**basemap_args)
 height,width=ndvi.shape
-new_rownums=np.arange(0,height)
-new_colnums=np.arange(0,width)
-xvals,yvals = make_basemap_xy(new_rownums,new_colnums,bmap,transform)
+ur_row=0
+ll_row=height
+ll_col=0
+ur_col=width
+xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform)
 row_slice,col_slice=slice_dict['row_slice'],slice_dict['col_slice']
 xvals_s,yvals_s,ndvi_s = xvals[row_slice,col_slice],yvals[row_slice,col_slice],ndvi[row_slice,col_slice]
 ll_x,ll_y,ur_x,ur_y = [xy_dict[key] for key in ['ll_x','ll_y','ur_x','ur_y']]
