@@ -247,10 +247,47 @@ def get_corners_centered(numrows,numcols,projection,transform):
     return ll_dict,xy_dict,slice_dict
 
 
+def get_corners(ur_row,ll_row,ll_col,ur_col,projection,transform):
+    """
+    return crnr lats  for a box with the contiguous
+    rows in rowlist and columns in collist
+    Note that rowlist increases downward, so toprow is rowlist[0]
+
+    Parameters
+    ----------
+
+    ur_row,ll_row,ll_col,ur_col
+       slice edges
+    pyrojection: proj object
+       pyproj map project giving lon_0 and lat_0
+    transform:
+       affine transform for image
+
+    Returns:
+       ll_dict: dict
+         ll and ur corner lat lons plus lon_0 and lat_0
+       xy_dict
+         ll and ur corner xy (without basemap easting or northing
+       slice_dict
+         slices to get columns and rows from original image, xvals and yvals
+    """
+    ll_x,ll_y = transform*(ll_col,ll_row)
+    ur_x,ur_y = transform*(ur_col,ur_row)
+    lon_0,lat_0 = projection(0,0,inverse=True)
+    ll_lon,ll_lat = projection(ll_x,ll_y,inverse=True)
+    ur_lon,ur_lat = projection(ur_x,ur_y,inverse=True)
+    ll_dict=dict(llcrnrlat=ll_lat,llcrnrlon=ll_lon,urcrnrlat=ur_lat,
+                  urcrnrlon=ur_lon,lon_0=lon_0,lat_0=lat_0)
+    xy_dict = dict(ll_x=ll_x,ll_y=ll_y,ur_x=ur_x,ur_y=ur_y)
+    slice_dict=dict(row_slice=slice(ur_row,ll_row),col_slice=slice(ll_col,ur_col))
+    return ll_dict,xy_dict,slice_dict
+
+
+
 fig, ax = plt.subplots(1,1,figsize=(14,14))
 basemap_args=result_dict['basemap_args']
 basemap_args['ax'] = ax
-basemap_args['resolution']='h'
+basemap_args['resolution']='i'
 bmap = Basemap(**basemap_args)
 colnums=np.arange(ll_col,ur_col,dtype=np.int)
 rownums=np.arange(ur_row,ll_row,dtype=np.int)
@@ -275,6 +312,41 @@ bmap.drawrivers();
 
 fig,ax = plt.subplots(1,1,figsize=(12,12))
 ll_dict,xy_dict,slice_dict=get_corners_centered(100,100,projection,transform)
+basemap_args.update(ll_dict)
+basemap_args['ax'] = ax
+basemap_args['resolution'] = 'i'
+bmap = Basemap(**basemap_args)
+height,width=ndvi.shape
+new_rownums=np.arange(0,height)
+new_colnums=np.arange(0,width)
+xvals,yvals = make_basemap_xy(new_rownums,new_colnums,bmap,transform)
+row_slice,col_slice=slice_dict['row_slice'],slice_dict['col_slice']
+xvals_s,yvals_s,ndvi_s = xvals[row_slice,col_slice],yvals[row_slice,col_slice],ndvi[row_slice,col_slice]
+ll_x,ll_y,ur_x,ur_y = [xy_dict[key] for key in ['ll_x','ll_y','ur_x','ur_y']]
+x0,y0=bmap.projparams['x_0'],bmap.projparams['y_0']
+ll_x,ur_x = ll_x + x0, ur_x + x0
+ll_y,ur_y = ll_y + y0, ur_y + y0
+col=bmap.pcolormesh(xvals_s,yvals_s,ndvi_s,cmap=cmap,norm=the_norm)
+lat_sep,lon_sep= 0.5, 0.5
+parallels = np.arange(46, 51, lat_sep)
+meridians = np.arange(-125,-121, lon_sep)
+bmap.drawparallels(parallels, labels=[1, 0, 0, 0],
+                        fontsize=10, latmax=90)
+bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
+                       fontsize=10, latmax=90);
+bmap.plot(ll_x,ll_y,'bo')
+bmap.ax.set_xlim(ll_x,ur_x)
+bmap.ax.set_ylim(ll_y,ur_y)
+bmap.drawcoastlines();
+bmap.drawrivers();
+
+
+ll_col=100
+ll_row=200
+ur_col=300
+ur_row=100
+fig,ax = plt.subplots(1,1,figsize=(12,12))
+ll_dict,xy_dict,slice_dict=get_corners(ur_row,ll_row,ll_col,ur_col,projection,transform)
 basemap_args.update(ll_dict)
 basemap_args['ax'] = ax
 basemap_args['resolution'] = 'h'
@@ -302,6 +374,8 @@ bmap.ax.set_xlim(ll_x,ur_x)
 bmap.ax.set_ylim(ll_y,ur_y)
 bmap.drawcoastlines();
 bmap.drawrivers();
+
+
 plt.show()
 
 
