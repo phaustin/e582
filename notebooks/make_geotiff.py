@@ -30,6 +30,7 @@ from e582lib.modis_chans import chan_dict
 from e582lib.channels_reproject import subsample,find_corners
 from e582lib.channels_reproject import resample_channels,write_h5
 import warnings
+import pyproj
 warnings.filterwarnings("ignore")
 
 
@@ -125,11 +126,17 @@ result_dict.keys()
 # In[10]:
 
 from affine import Affine
-import rasterio
 geotiff_args = result_dict['geotiff_args']
 transform = Affine.from_gdal(*geotiff_args['adfgeotransform'])
+basemap_args=result_dict['basemap_args']
 crs = geotiff_args['proj4_string']
 fill_value=result_dict['fill_value']
+proj_keys={'lon_0','lat_0'}
+projection_dict={k:basemap_args[k] for k in proj_keys}
+projection_dict['datum']='WGS84'
+projection_dict['proj'] = 'laea'
+projection=pyproj.Proj(projection_dict)
+
 
 # In[11]:
 
@@ -175,11 +182,6 @@ result_dict['basemap_args']
 # In[18]:
 
 
-fig, ax = plt.subplots(1,1,figsize=(14,14))
-basemap_args=result_dict['basemap_args']
-basemap_args['ax'] = ax
-basemap_args['resolution']='h'
-bmap = Basemap(**basemap_args)
 
 
 def make_xy(rownums,colnums,transform):
@@ -203,19 +205,53 @@ def make_basemap_xy(rownums,colnums,bmap,transform):
     return xvals,yvals
 
 
-# def get_corners(width,height,projection,transform):
-#     """
-#     return crnr lats  and lons centered on lon_0,lat_0
-#     """
-#     lon_0,lat_0 = projection(0,0,inverse=True)
-    
-#     col_0,row_0 = ~transform*(0,0)
-#     col_slice=slice(int(col_0 - width/2.),int(col_0 + width/2.))
-#     row_slice=slice(int(row_0 - width/2.),int(row_0 + width/2.))
-#     return col_slice,row_slice
+def get_corners_centered(numrows,numcols,projection,transform):
+    """
+    return crnr lats  and lons centered on lon_0,lat_0
+    with width numcols and height numrows
+
+    Parameters
+    ----------
+
+    numrows: int
+       number of rows in slice
+    numcols: int
+       number of columns in slice
+    pyrojection: proj object
+       pyproj map project giving lon_0 and lat_0
+    transform:
+       affine transform for image
+
+    Returns:
+       ll_dict: dict
+         ll and ur corner lat lons plus lon_0 and lat_0
+       xy_dict
+         ll and ur corner xy (without basemap easting or northing
+       slice_dict
+         slices to get columns and rows from original image, xvals and yvals
+    """
+    cen_col,cen_row = ~transform*(0,0)
+    left_col = int(cen_col - numcols/2.)
+    right_col = int(cen_col + numcols/2.)
+    top_row = int(cen_row - numrows/2.)
+    bot_row = int(cen_row + numrows/2.)
+    ll_x,ll_y = transform*(left_col,bot_row)
+    ur_x,ur_y = transform*(right_col,top_row)
+    lon_0,lat_0 = projection(0,0,inverse=True)
+    ll_lon,ll_lat = projection(ll_x,ll_y,inverse=True)
+    ur_lon,ur_lat = projection(ur_x,ur_y,inverse=True)
+    ll_dict=dict(llcrnrlat=ll_lat,llcrnrlon=ll_lon,urcrnrlat=ur_lat,
+                  urcrnrlon=ur_lon,lon_0=lon_0,lat_0=lat_0)
+    xy_dict = dict(ll_x=ll_x,ll_y=ll_y,ur_x=ur_x,ur_y=ur_y)
+    slice_dict=dict(row_slice=slice(top_row,bot_row),col_slice=slice(left_col,right_col))
+    return ll_dict,xy_dict,slice_dict
 
 
-
+fig, ax = plt.subplots(1,1,figsize=(14,14))
+basemap_args=result_dict['basemap_args']
+basemap_args['ax'] = ax
+basemap_args['resolution']='h'
+bmap = Basemap(**basemap_args)
 colnums=np.arange(ll_col,ur_col,dtype=np.int)
 rownums=np.arange(ur_row,ll_row,dtype=np.int)
 xvals,yvals = make_basemap_xy(rownums,colnums,bmap,transform)
@@ -223,8 +259,47 @@ ll_x,ur_x=xvals[-1,0],xvals[0,-1]
 ll_y,ur_y =yvals[-1,0],yvals[0,-1]
 col=bmap.pcolormesh(xvals,yvals,ndvi_zoom,cmap=cmap,norm=the_norm)
 colorbar=bmap.ax.figure.colorbar(col, shrink=0.5, pad=0.05,extend='both')
+lat_sep,lon_sep= 0.5, 0.5
+parallels = np.arange(46, 51, lat_sep)
+meridians = np.arange(-125,-121, lon_sep)
+bmap.drawparallels(parallels, labels=[1, 0, 0, 0],
+                        fontsize=10, latmax=90)
+bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
+                       fontsize=10, latmax=90);
 bmap.ax.set_xlim(ll_x,ur_x)
 bmap.ax.set_ylim(ur_y,ll_y)
+bmap.drawcoastlines();
+bmap.drawrivers();
+
+
+
+fig,ax = plt.subplots(1,1,figsize=(12,12))
+ll_dict,xy_dict,slice_dict=get_corners_centered(100,100,projection,transform)
+basemap_args.update(ll_dict)
+basemap_args['ax'] = ax
+basemap_args['resolution'] = 'h'
+bmap = Basemap(**basemap_args)
+height,width=ndvi.shape
+new_rownums=np.arange(0,height)
+new_colnums=np.arange(0,width)
+xvals,yvals = make_basemap_xy(new_rownums,new_colnums,bmap,transform)
+row_slice,col_slice=slice_dict['row_slice'],slice_dict['col_slice']
+xvals_s,yvals_s,ndvi_s = xvals[row_slice,col_slice],yvals[row_slice,col_slice],ndvi[row_slice,col_slice]
+ll_x,ll_y,ur_x,ur_y = [xy_dict[key] for key in ['ll_x','ll_y','ur_x','ur_y']]
+x0,y0=bmap.projparams['x_0'],bmap.projparams['y_0']
+ll_x,ur_x = ll_x + x0, ur_x + x0
+ll_y,ur_y = ll_y + y0, ur_y + y0
+col=bmap.pcolormesh(xvals_s,yvals_s,ndvi_s,cmap=cmap,norm=the_norm)
+lat_sep,lon_sep= 0.5, 0.5
+parallels = np.arange(46, 51, lat_sep)
+meridians = np.arange(-125,-121, lon_sep)
+bmap.drawparallels(parallels, labels=[1, 0, 0, 0],
+                        fontsize=10, latmax=90)
+bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
+                       fontsize=10, latmax=90);
+bmap.plot(ll_x,ll_y,'bo')
+bmap.ax.set_xlim(ll_x,ur_x)
+bmap.ax.set_ylim(ll_y,ur_y)
 bmap.drawcoastlines();
 bmap.drawrivers();
 plt.show()
