@@ -32,14 +32,12 @@ from e582lib.channels_reproject import resample_channels,write_h5
 import warnings
 warnings.filterwarnings("ignore")
 
-get_ipython().magic('matplotlib inline')
+
 myd02file="MYD021KM.A2016224.2100.006.2016225153002.h5"
 download(myd02file)
 
 
 # In[2]:
-
-Image('figures/MYBRGB.A2016224.2100.006.2016237025650.jpg')
 
 
 # In[3]:
@@ -107,18 +105,7 @@ corner_dict
 
 from e582lib.channels_reproject import resample_channels
 chan_list=['1','2','3','4']
-result_dict=       resample_channels(chan_array,lats,lons,corner_dict)
-
-
-# In[8]:
-
-result_dict.keys()
-
-
-# ### write this out for reuse
-
-# In[9]:
-
+result_dict= resample_channels(chan_array,lats,lons,corner_dict)
 #
 # add ndvi as a new layer so that channels
 # grows to shape= rows x cols x 5
@@ -127,14 +114,10 @@ channels=result_dict['channels']
 ch1=channels[:,:,0]
 ch2=channels[:,:,1]
 ndvi=(ch2 - ch1)/(ch2 + ch1)
-ndvi=ndvi[:,:,np.newaxis]
-channels=np.concatenate((channels,ndvi),axis=2)
-chan_list=['modis1','modis2','modis3','modis4','ndvi']
-result_dict['channels']=channels
-result_dict['chan_list']=chan_list
-result_dict['out_file']='vancouver_zoom.h5'
-result_dict['comments']='subsampled to vancouver box'
-write_h5(**result_dict)
+
+# In[8]:
+
+result_dict.keys()
 
 
 # ### write out a geotiff file for the ndvi using rasterio
@@ -147,31 +130,17 @@ geotiff_args = result_dict['geotiff_args']
 transform = Affine.from_gdal(*geotiff_args['adfgeotransform'])
 crs = geotiff_args['proj4_string']
 fill_value=result_dict['fill_value']
-tif_filename='vancouver_ndvi.tif'
-ndvi = channels[:,:,4]
-data_type = ndvi.dtype
-height, width = ndvi.shape
-num_chans=1
-if fill_value is None:
-    fill_value = np.array([np.nan],dtype=data_type)[0]
-with rasterio.open(tif_filename,'w',driver='GTiff',
-                   height=height,width=width,
-                   count=num_chans,dtype=data_type,
-                   crs=crs,transform=transform,nodata= fill_value) as dst:
-        dst.write(ndvi,1)
-crs
-transform
-
 
 # In[11]:
 
+plt.close('all')
 fig,ax=plt.subplots(1,1,figsize=(12,12))
 ax.imshow(ndvi)
 
 
 # In[12]:
 
-plt.close('all')
+
 fig, ax = plt.subplots(1,1,figsize=(14,14))
 ll_col=200
 ll_row=200
@@ -205,42 +174,44 @@ result_dict['basemap_args']
 
 # In[18]:
 
-plt.close('all')
+
 fig, ax = plt.subplots(1,1,figsize=(14,14))
 basemap_args=result_dict['basemap_args']
 basemap_args['ax'] = ax
 basemap_args['resolution']='h'
 bmap = Basemap(**basemap_args)
-top_row=np.arange(ll_col,ur_col,dtype=np.int)
-left_col=np.arange(ur_row,ll_row,dtype=np.int)
 
 
+def make_basemap_xy(rownums,colnums,bmap,transform):
+    xline=[]
+    yline=[]
+    for the_col in colnums:
+        x,y = transform*(the_col,0)
+        xline.append(x)
+    for the_row in rownums:
+        x,y= transform*(0,the_row)
+        yline.append(y)
+    xline,yline=np.array(xline),np.array(yline)
+    xline = xline + bmap.projparams['x_0']
+    yline = yline + bmap.projparams['y_0']
+    xvals, yvals = np.meshgrid(xline,yline)
+    return xvals,yvals
 
-xline=np.empty(top_row.shape,dtype=np.float)
-yline=np.empty(left_col.shape,dtype=np.float)
-for index,colnum in enumerate(top_row):
-    x,y=col_row_to_xy(colnum,ur_row,geotiff_args['adfgeotransform'])
-    xline[index] = x
-for index,rownum in enumerate(left_col):
-    x,y=col_row_to_xy(ll_col,rownum,geotiff_args['adfgeotransform'])
-    yline[index]=y
-xline = xline + bmap.projparams['x_0']
-yline = yline + bmap.projparams['y_0']
-xvals, yvals = np.meshgrid(xline,yline)
+
+colnums=np.arange(ll_col,ur_col,dtype=np.int)
+rownums=np.arange(ur_row,ll_row,dtype=np.int)
+xvals,yvals = make_basemap_xy(rownums,colnums,bmap,transform)
+ll_x,ur_x=xvals[-1,0],xvals[0,-1]
+ll_y,ur_y =yvals[-1,0],yvals[0,-1]
 col=bmap.pcolormesh(xvals,yvals,ndvi_zoom,cmap=cmap,norm=the_norm)
 colorbar=bmap.ax.figure.colorbar(col, shrink=0.5, pad=0.05,extend='both')
-#bmap.ax.set_xlim(xline[0],xline[-1])
-#bmap.ax.set_ylim(yline[-1],yline[0]);
+bmap.ax.set_xlim(ll_x,ur_x)
+bmap.ax.set_ylim(ur_y,ll_y)
 bmap.drawcoastlines();
 bmap.drawrivers();
+plt.show()
 
 
-# In[ ]:
-
-
-
-
-# In[ ]:
 
 
 
