@@ -17,19 +17,14 @@ from e582utils.data_read import download
 
 import numpy as np
 import h5py
-import sys
 import warnings
 from matplotlib import pyplot as plt
-from IPython.display import Image
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import Normalize
-import matplotlib
-import matplotlib.cm as cm
 import seaborn as sns
 from e582lib.modis_chans import chan_dict
 from e582lib.channels_reproject import subsample,find_corners
-from e582lib.channels_reproject import resample_channels,write_h5
-import warnings
+from e582lib.channels_reproject import resample_channels
 import pyproj
 warnings.filterwarnings("ignore")
 
@@ -104,7 +99,6 @@ corner_dict
 
 # In[7]:
 
-from e582lib.channels_reproject import resample_channels
 chan_list=['1','2','3','4']
 result_dict= resample_channels(chan_array,lats,lons,corner_dict)
 #
@@ -157,12 +151,7 @@ ndvi_zoom=ndvi[ur_row:ll_row,ll_col:ur_col]
 ax.imshow(ndvi_zoom);
 
 
-# In[13]:
 
-from e582lib.geolocate import xy_to_col_row,col_row_to_xy
-
-
-# In[14]:
 
 cmap=sns.diverging_palette(261, 153,sep=6, s=85, l=66,as_cmap=True)
 vmin= -0.9
