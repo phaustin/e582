@@ -32,6 +32,7 @@ download(myd02file)
 myd03file="MYD03.A2016224.2100.006.2016225152335.h5"
 download(myd03file)
 
+plt.close('all')
 
 # In[3]:
 
@@ -86,6 +87,10 @@ corner_dict
 # In[6]:
 
 chan_list=['1','2','3','4']
+
+swath_def = geometry.SwathDefinition(lons=lons, lats=lats)
+
+
 result_dict= resample_channels(chan_array,lats,lons,corner_dict)
 #
 # add ndvi as a new layer so that channels
@@ -177,12 +182,14 @@ out = reproject(ndvi,new_ndvi,src_transform=transform,src_crs=src_crs,src_nodata
 
 # In[41]:
 
-plt.imshow(new_ndvi,origin='upper')
+fig,ax = plt.subplots(1,1,figsize=(10,10))
+ax.imshow(new_ndvi,origin='upper')
 
 
 # In[18]:
 
-plt.imshow(ndvi,origin='upper')
+fig,ax = plt.subplots(1,1,figsize=(10,10))
+ax.imshow(ndvi,origin='upper')
 
 
 # In[12]:
@@ -215,7 +222,6 @@ basemap_args
 
 # In[17]:
 
-plt.close('all')
 numrows=100
 numcols=100
 ll_dict,xy_dict,slice_dict=get_corners_centered(numrows,numcols,new_proj,transform_out)
