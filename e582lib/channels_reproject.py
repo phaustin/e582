@@ -146,7 +146,7 @@ def find_corners(lats,lons):
                   lat_0=lat_0,lon_0=lon_0,lat_list=lat_list,lon_list=lon_list)
     return out_dict
     
-def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-99999.):
+def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-99999.,area_def=None):
     """
        given an array of radiances and/or reflectances 
        and the corresponding
