@@ -204,6 +204,7 @@ out = reproject(sea_ndvi,van_ndvi,src_transform=sea_transform,src_crs=sea_crs,sr
 fig,ax = plt.subplots(1,1,figsize=(10,10))
 ax.imshow(van_ndvi,origin='upper',cmap=cmap,norm=the_norm);
 
+plt.show()
 
 # In[ ]:
 

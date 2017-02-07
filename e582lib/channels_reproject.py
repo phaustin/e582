@@ -256,6 +256,17 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     #
     # now project all the images onto the lambert map
     #
+    
+    area_extent = [minx, miny, maxx, maxy]
+    x_pixel = 1.3e3
+    y_pixel = 1.3e3
+    #
+    # figure out how many pixels in the image
+    #
+    xsize = int((area_extent[2] - area_extent[0]) / x_pixel)
+    ysize = int((area_extent[3] - area_extent[1]) / y_pixel)
+
+    
     area_def_args = dict(
         area_id=area_id,
         area_name=area_name,
