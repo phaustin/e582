@@ -7,6 +7,7 @@ import rasterio
 import h5py
 from ast import literal_eval
 import pyproj
+from mpl_toolkits.basemap import Basemap
 
 def make_xy(ur_row,ll_row,ll_col,ur_col,transform):
     """
@@ -208,6 +209,23 @@ def write_h5(out_file=None,
 
 
 def read_h5(in_file):
+    """
+    read an h5 file produced by write_h5 and return
+    contents in out_dict
+
+    Parameters
+    ----------
+
+    in_file: str
+      filename of h5 file
+
+    Returns
+    -------
+
+    out_dict: dict
+       dictionary of file contents
+
+    """
     out_dict=dict(channels=dict())
     with h5py.File(in_file, 'r') as f:
         for chan in f['channels'].keys():
@@ -215,6 +233,11 @@ def read_h5(in_file):
         out_dict['affine_transform']=Affine(*list(f.attrs['affine_coeffs']))
         for key in ['projection_dict','chan_list']:
             print('key: ',key,f.attrs[key])
+            #
+            # literal_eval evaluates the string representation of the
+            # projection and channel dictionaries and turns them
+            # into python dictionaries
+            #
             out_dict[key]=literal_eval(f.attrs[key])
         out_dict['fill_value']=f.attrs['fill_value']
         out_dict['comments']=f.attrs['comments']
@@ -262,6 +285,34 @@ def write_tif(h5_filename,tif_filename):
     return None
 
 def get_basemap(width,height,crs,transform):
+    """
+    given a mapped array with height rows and width columns
+    and the crs (as a pyproject dict) and affine transform
+    return a dictionary that can be passed to a Basemap object
+    to map the array
+
+    Parameters
+    ----------
+
+    width: int
+        number of columns in map
+    height: int
+        number of rows in map
+    crs:  dict
+        pyproj dictionary
+    transform: Affine object
+        affine transform
+
+    Returns
+    -------
+
+    basemap_args: dict
+       key,value pairs needed for basemap construction
+    xvals: ndarray
+       map x values for pcolormesh
+    yvals: ndarray
+       map y values for pcolormesh
+    """
     basemap_args = dict()
     basemap_args['ellps'] = crs['datum']
     basemap_args['projection'] = crs['proj']
@@ -279,5 +330,7 @@ def get_basemap(width,height,crs,transform):
     ll_dict=dict(llcrnrlat=ll_lat,llcrnrlon=ll_lon,urcrnrlat=ur_lat,
                   urcrnrlon=ur_lon)
     basemap_args.update(ll_dict)
-    return basemap_args
+    bmap = Basemap(**basemap_args)
+    xvals,yvals = make_basemap_xy(top_row,bot_row,left_col,right_col,bmap,transform)
+    return basemap_args, xvals, yvals
 
