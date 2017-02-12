@@ -1,14 +1,13 @@
 
 # coding: utf-8
 
-# ### Level 3 binned data: integerized sinusoidal tiling
+# ### Level 3 binned data: integerized sinusoidal binning
 # 
-# Level 3 data is binned in 4 km x 4 km tiles arranged in 4320 latitude rows
-
-# Here is my verison of the perl program at  
-# https://oceancolor.gsfc.nasa.gov/docs/format/l3bins/ that calculates
-# the relationship between latitudes and logitudes and tiles on the NASA sinusoidal grid.  See
-# http://scipy-lectures.github.io/intro/language/oop.html for a quick intro into how classes work in python
+# The Level 3 data distributed by the [NASA Ocean Biology Processing Group](https://oceancolor.gsfc.nasa.gov/about)
+# is binned in 4 km x 4 km tiles arranged in 4320 latitude rows
+# 
+# For more information see https://oceancolor.gsfc.nasa.gov/docs/format/Ocean_Level-3_Binned_Data_Products.pdf
+# and https://oceancolor.gsfc.nasa.gov/docs/format/l3bins/
 
 # In[1]:
 
@@ -35,7 +34,14 @@ EmbedNorth
 EmbedSouth
 
 
-# Here is my python translation  of the perl script called (bin_calc.py](https://github.com/phaustin/e582/blob/master/utilities/bin_calc.py)  that we'll use to map lon/lat to bin number
+# Here is my python translation  of the perl script at https://oceancolor.gsfc.nasa.gov/docs/format/l3bins/ that calculates the relationship between latitudes and logitudes and bins on the NASA sinusoidal grid.  
+# 
+# Source is at [bin_calc.py](https://github.com/phaustin/e582/blob/master/e582utils/bin_calc.py) 
+# 
+# See
+# http://scipy-lectures.github.io/intro/language/oop.html for a quick intro into how classes work in python
+# 
+# 
 
 # In[5]:
 
