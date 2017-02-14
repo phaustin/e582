@@ -81,19 +81,19 @@ chlor_array=np.empty([height,width],dtype=np.float32)
 chlor_array[...]=np.nan
 
 
-# #### Now go through every row,col and look up the mean concentration from the dataframe, indexed by tile number
+# #### Now go through every row,col and look up the mean concentration from the dataframe, indexed by bin number
 
 # In[7]:
 
 num_rows=4320
-find_tile=bc.Bin_calc(num_rows)
+find_bin=bc.Bin_calc(num_rows)
 for row in range(height):
     for col in range(width):
         xcell,ycell = transform*(col,row)
         lon, lat = projection(xcell,ycell,inverse=True)
-        tile_num=find_tile.lonlat2bin(lon,lat)
+        bin_num=find_bin.lonlat2bin(lon,lat)
         try:
-            chlor_array[row,col]=float(the_df.loc[tile_num]['chlor_a_mean'])
+            chlor_array[row,col]=float(the_df.loc[bin_num]['chlor_a_mean'])
         except KeyError:
             pass
 chlor_array = np.ma.masked_invalid(chlor_array)

@@ -2,7 +2,7 @@
    python translation of the perl script at
    https://oceancolor.gsfc.nasa.gov/docs/format/l3bins/
 
-   usage:
+   usage::
             import e582utils.bin_calc as tc
             test18=tc.Bin_calc(18)
             print(test18.lonlat2bin-123.25,49.2333))

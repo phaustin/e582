@@ -18,7 +18,8 @@ import h5py
 import numpy as np
 import pyproj
 import pyresample
-from pyresample import kd_tree,geometry
+from pyresample import kd_tree
+from pyresample import geometry
 from matplotlib import pyplot as plt
 from e582utils.modismeta_read import parseMeta
 from e582utils.data_read import download

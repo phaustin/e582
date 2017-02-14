@@ -4,7 +4,8 @@ Functions to compute thermal radiation relations for the Planck function
 """
 import numpy as np
 import pytest
-from scipy.constants import c, h, k
+from scipy.constants import c
+from scipy.constants import h, k
 #
 # combine fundamental constants into two coefficients
 #
