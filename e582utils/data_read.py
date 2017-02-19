@@ -18,6 +18,13 @@
     from e582utils.data_read import download
     download('photon_data.csv')
 
+  or
+
+    from e582utils>data_read import download
+    root="https://oceandata.sci.gsfc.nasa.gov/cgi/getfile"
+    filename="A20162092016216.L3m_8D_PAR_par_9km.nc"
+    download(filename,root=root)
+
 """
 import argparse
 import requests
