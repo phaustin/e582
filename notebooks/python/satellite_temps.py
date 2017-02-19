@@ -3,7 +3,7 @@
 
 # # Repeat the raw image plot from satellite_III
 
-# In[8]:
+# In[1]:
 
 from e582utils.data_read import download
 import numpy as np
@@ -23,51 +23,56 @@ download(myd02file)
 myd03file="MYD03.A2016224.2100.006.2016225152335.h5"
 
 
+# In[2]:
+
+import scipy.constants as sc
+
+
 # Here is the corresponding red,green,blue color composite for the granule.
 
-# In[2]:
+# In[3]:
 
 from IPython.display import Image
 Image(url='http://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads/aqua_136_2015.jpg',width=600)
 
 
-# In[3]:
+# In[4]:
 
-chan_list=['1']
+chan_list=['31']
 result_dict=       modisl1b_resample(myd02file,myd03file,chan_list)
 
 
 # Now call the planckInvert function imported at the top of the notebook to convert radiance to brightness temperature
 
-# In[4]:
+# In[5]:
 
 result_dict['channels'].shape
 
 
-# In[5]:
+# In[6]:
 
 wavel=11.e-6  #chan 31 central wavelength, meters
 chan31_mks = result_dict['channels'][:,:,0]*1.e6  #W/m^2/m/sr
 Tbright = planckInvert(wavel,chan31_mks)
+print(np.nanmean(Tbright))
 Tbright = Tbright - 273.15 #convert to Centigrade
-Tbright=chan31_mks*1.e-6
 
 
-# In[6]:
+# In[7]:
 
 get_ipython().magic('matplotlib inline')
 from matplotlib import pyplot as plt
 from matplotlib import cm
 cmap=cm.get_cmap('plasma')
-vmin= 0.
-vmax= 1.
+vmin= -20
+vmax= 30
 cmap.set_over('w')
 cmap.set_under('k',alpha=0.3)
 cmap.set_bad('b',alpha=0.1)
 the_norm=Normalize(vmin=vmin,vmax=vmax,clip=False)
 
 
-# In[7]:
+# In[8]:
 
 plt.close('all)')
 fig,ax=plt.subplots(1,1,figsize=(14,14))

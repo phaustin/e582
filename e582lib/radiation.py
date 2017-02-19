@@ -4,8 +4,7 @@ Functions to compute thermal radiation relations for the Planck function
 """
 import numpy as np
 import pytest
-from scipy.constants import c
-from scipy.constants import h, k
+import scipy.constants as sc
 #
 # combine fundamental constants into two coefficients
 #
@@ -13,9 +12,9 @@ from scipy.constants import h, k
 # h=6.62606876e-34  #J s  -- Planck's constant
 # k=1.3806503e-23  # J/K  -- Boltzman's constant
 
-c1 = 2. * h * c**2.
-c2 = h * c / k
-sigma = 2. * np.pi**5. * k**4. / (15 * h**3. * c**2.)
+c1 = 2. * sc.h * sc.c**2.
+c2 = sc.h * sc.c / sc.k
+sigma = 2. * np.pi**5. * sc.k**4. / (15 * sc.h**3. * sc.c**2.)
 #print(sigma)
 
 

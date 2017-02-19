@@ -9,6 +9,10 @@
 
     python -m e582utils.data_read photon_data.csv
 
+    or
+
+    python -m e582utils.data_read A20162092016216.L3m_8D_PAR_par_9km.nc --root https://oceandata.sci.gsfc.nasa.gov/cgi/getfile
+
   to run from a python script::
 
     from e582utils.data_read import download
@@ -18,11 +22,9 @@
 import argparse
 import requests
 from pathlib import Path
-import sys
-import os
 import shutil
 
-def download(filename):
+def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads'):
     """
     copy file filename from http://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads to 
     the local directory.  If local file exists, report file size and quit.
@@ -39,8 +41,10 @@ def download(filename):
 
     Side effect: Creates a copy of that file in the local directory
     """
-    url = 'https://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads/{}'.format(filename)
+    url = '{}/{}'.format(root,filename)
+    print('trying {}'.format(url))
     filepath = Path('./{}'.format(filename))
+    print('writing to: {}'.format(str(filepath)))
     if filepath.exists():
         the_size = filepath.stat().st_size
         print(('\n{} already exists\n'
@@ -66,7 +70,7 @@ def download(filename):
     the_size=temppath.stat().st_size
     if the_size < 10.e3:
         print('Warning -- your file is tiny (smaller than 10 Kbyte)\nDid something go wrong?')
-    shutil.move(tempfile,filename)
+    shutil.move(str(temppath),str(filepath))
     the_size=filepath.stat().st_size
     print('downloaded {}\nsize = {}'.format(filename,the_size))
     return None
@@ -79,6 +83,8 @@ def make_parser():
     parser = argparse.ArgumentParser(
         formatter_class=linebreaks, description=__doc__.lstrip())
     parser.add_argument('filename', type=str, help='name of file to download')
+    parser.add_argument("--root", default="https://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads",
+                        help="root of url, detaults to https://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads")
     return parser
 
 
@@ -86,7 +92,7 @@ if __name__ == "__main__":
 
     parser = make_parser()
     args=parser.parse_args()
-    download(args.filename)
+    download(args.filename, root=args.root)
    
     
 
