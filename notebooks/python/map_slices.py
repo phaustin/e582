@@ -258,12 +258,17 @@ projection=pyproj.Proj(projection_dict)
 
 # In[12]:
 
+basemap_args
+
+
+# In[13]:
+
 plt.close('all')
 fig,ax=plt.subplots(1,1,figsize=(12,12))
 ax.imshow(ndvi);
 
 
-# In[13]:
+# In[14]:
 
 fig, ax = plt.subplots(1,1,figsize=(14,14))
 ll_col=200
@@ -274,7 +279,7 @@ ndvi_zoom=ndvi[ur_row:ll_row,ll_col:ur_col]
 ax.imshow(ndvi_zoom);
 
 
-# In[14]:
+# In[15]:
 
 cmap=sns.diverging_palette(261, 153,sep=6, s=85, l=66,as_cmap=True)
 vmin= -0.9
@@ -290,7 +295,7 @@ the_norm=Normalize(vmin=vmin,vmax=vmax,clip=False)
 # Step 1, get the lat/lon corners for a 100 x 100 slice centered on lon_0, lat_0
 # and create a basemap instance with those corners
 
-# In[15]:
+# In[16]:
 
 ll_dict,xy_dict,slice_dict=get_corners_centered(100,100,projection,transform)
 basemap_args.update(ll_dict)
@@ -301,7 +306,7 @@ bmap = Basemap(**basemap_args)
 # 
 # make x,y arrays that cover every pixel in the remapped ndvi image
 
-# In[16]:
+# In[17]:
 
 height,width=ndvi.shape
 ur_row=0
@@ -316,13 +321,13 @@ xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform)
 # slice the xvals,yvals and ndvi array to the 100 x 100 pixel selection
 # and make the map of of the slices
 
-# In[17]:
+# In[21]:
 
 row_slice,col_slice=slice_dict['row_slice'],slice_dict['col_slice']
 xvals_s,yvals_s,ndvi_s = xvals[row_slice,col_slice],yvals[row_slice,col_slice],ndvi[row_slice,col_slice]
 fig, ax = plt.subplots(1,1,figsize=(12,12))
 basemap_args['ax']=ax
-basemap_args['resolution'] = 'c'
+basemap_args['resolution'] = 'h'
 bmap = Basemap(**basemap_args)
 col=bmap.pcolormesh(xvals_s,yvals_s,ndvi_s,cmap=cmap,norm=the_norm)
 lat_sep,lon_sep= 0.5, 0.5
@@ -334,11 +339,12 @@ bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
                        fontsize=10, latmax=90);
 bmap.drawcoastlines();
 bmap.drawrivers();
+basemap_args
 
 
 # ### Repeat with an arbitray slice that is off the lon_0, lat_0 center
 
-# In[18]:
+# In[19]:
 
 ll_col=100
 ll_row=200
@@ -368,6 +374,11 @@ bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
                        fontsize=10, latmax=90);
 bmap.drawcoastlines();
 bmap.drawrivers();
+
+
+# In[20]:
+
+basemap_args
 
 
 # In[ ]:

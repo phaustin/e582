@@ -174,7 +174,7 @@ lon_centers=(lon_hist['edges_vec'][1:] + lon_hist['edges_vec'][:-1])/2.
 lon_array,lat_array=np.meshgrid(lon_centers,lat_centers)
 
 
-# In[8]:
+# In[13]:
 
 import numpy as np
 lon,lat=np.meshgrid([1,2,3,4,5],[100,101,102,104])
@@ -182,7 +182,7 @@ lon
 lat
 
 
-# In[13]:
+# In[14]:
 
 fig,ax = plt.subplots(1,1,figsize = (10,14))
 CS=ax.imshow(gridded_image)
@@ -193,7 +193,7 @@ out.set_rotation(270)
 out.set_verticalalignment('bottom')
 
 
-# In[14]:
+# In[15]:
 
 fig,ax = plt.subplots(1,1,figsize = (10,14))
 masked_31 = np.ma.masked_invalid(gridded_image)
@@ -225,7 +225,7 @@ out.set_verticalalignment('bottom')
 #    and [meshgrid](http://docs.scipy.org/doc/numpy/reference/generated/numpy.meshgrid.html) to set up 2-dimensional latitude and longitude arrays from the histogram bins.  The basemap projection object proj maps lat,lon coords to
 #    x,y plotting coords.
 
-# In[15]:
+# In[16]:
 
 from matplotlib import cm
 from matplotlib.colors import Normalize

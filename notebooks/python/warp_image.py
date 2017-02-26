@@ -161,6 +161,7 @@ van_lon,van_lat = [-123.2460,49.2606]
 
 sea_col,sea_row=lon_lat_to_row_col(sea_lon,sea_lat,sea_transform,sea_projection)
 van_col,van_row=lon_lat_to_row_col(van_lon,van_lat,sea_transform,sea_projection)
+sea_col,sea_row,van_col,van_row=int(sea_col),int(sea_row),int(van_col),int(van_row)
 sea_ndvi[sea_row:sea_row+10,sea_col:sea_col+10]=5.
 sea_ndvi[van_row:van_row+10,van_col:van_col+10]=-5.
 fig,ax = plt.subplots(1,1,figsize=(10,10))
@@ -184,7 +185,7 @@ van_crs={'datum': 'WGS84', 'lat_0': new_lat, 'lon_0': new_lon, 'proj': 'laea', '
 # 
 # I'll also coarsen the resolution to 5km x 5km
 
-# In[16]:
+# In[12]:
 
 height,width = sea_ndvi.shape
 ll_x,ll_y = sea_transform*(0,height)

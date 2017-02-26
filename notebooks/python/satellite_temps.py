@@ -18,14 +18,17 @@ myd02file = 'MYD021KM.A2016136.2015.006.2016138123353.h5'
 download(myd02file)
 myd03file='MYD03.A2016136.2015.006.2016138121537.h5'
 download(myd03file)
-myd02file="MYD021KM.A2016224.2100.006.2016225153002.h5"
-download(myd02file)
-myd03file="MYD03.A2016224.2100.006.2016225152335.h5"
+# myd02file="MYD021KM.A2016224.2100.006.2016225153002.h5"
+# download(myd02file)
+# myd03file="MYD03.A2016224.2100.006.2016225152335.h5"
 
 
 # In[2]:
 
 import scipy.constants as sc
+sc.h
+sc.c
+sc.k
 
 
 # Here is the corresponding red,green,blue color composite for the granule.
@@ -56,6 +59,8 @@ chan31_mks = result_dict['channels'][:,:,0]*1.e6  #W/m^2/m/sr
 Tbright = planckInvert(wavel,chan31_mks)
 print(np.nanmean(Tbright))
 Tbright = Tbright - 273.15 #convert to Centigrade
+Tbright=chan31_mks*1.e-6
+print(np.nanmean(Tbright))
 
 
 # In[7]:
@@ -64,8 +69,8 @@ get_ipython().magic('matplotlib inline')
 from matplotlib import pyplot as plt
 from matplotlib import cm
 cmap=cm.get_cmap('plasma')
-vmin= -20
-vmax= 30
+vmin= 0
+vmax= 10
 cmap.set_over('w')
 cmap.set_under('k',alpha=0.3)
 cmap.set_bad('b',alpha=0.1)
