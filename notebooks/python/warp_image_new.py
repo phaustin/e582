@@ -12,7 +12,7 @@ from e582utils.data_read import download
 
 import numpy as np
 import warnings
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as  
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import Normalize
 import seaborn as sns
@@ -166,7 +166,7 @@ bmap_large.plot(xsea,ysea,'bo');
 
 # #### step 1: setup up the crs and corners for the small and large images
 
-# In[8]:
+# In[11]:
 
 from pyresample import image, geometry
 small_crs=bmap_small.projparams
@@ -175,6 +175,7 @@ small_height,small_width = van_image.shape
 large_crs=bmap_large.projparams
 large_extent=[bmap_large.llcrnrx,bmap_large.llcrnry,bmap_large.urcrnrx,bmap_large.urcrnry]
 large_height,large_width = 800,600
+large_crs
 
 
 # #### step 2: reproject utins pyresample

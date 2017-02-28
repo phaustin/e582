@@ -372,7 +372,7 @@ write_h5(out_file=out_h5,affine_transform=transform,
 
 ### write tif file
 from importlib import reload
-out_tif = 'stretched_out.tif'
+out_tifp = 'stretched_out.tif'
 import e582lib.map_slices
 reload(e582lib.map_slices)
 from e582lib.map_slices import write_tif
