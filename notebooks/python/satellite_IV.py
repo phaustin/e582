@@ -1,25 +1,26 @@
 
 # coding: utf-8
 
-# Intro to satellite data  IV -- using numba for speed
-
-In the satellite_III notebook we histogrammed into lat/lon bins and averaged the chan31 radiances in each bin to get a regular grid that could be mapped.  Unfortunately, the plain python routine python routine for binning was too slow to do the whole scene in less than 5 minutes or so.   In this notebook we:
-
-1. move the satellite_III routines [slow_hist](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#slow_hist) and [slow_avg](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#slow_avg)
-to the a301lib.geolocate library and replace them with [fast_hist](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#fast_hist) which uses numpy vector operations np.searchsorted and np.bincount, and [fast_avg](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#fast_hist) which uses [numba](http://numba.pydata.org/)
-
-2. with those functions we can regrid the entire image and plot it using the python [basemap](http://matplotlib.org/basemap/#) module
-   
-   
-Some topics we briefly introduce here and will return to in more detail in the future
-
-    a. numba
-    b. keyword argument unpacking
-    c. palettes and normalized colormaps
-    d. masked arrays
-    e. map projections
-    f. operations along axes
-    g. IPython magic operations like %timeit
+# # Intro to satellite data  IV -- using numba for speed
+# 
+# In the satellite_III notebook we histogrammed into lat/lon bins and averaged the chan31 radiances in each bin to get a regular grid that could be mapped.  Unfortunately, the plain python routine python routine for binning was too slow to do the whole scene in less than 5 minutes or so.   In this notebook we:
+# 
+# 1. move the satellite_III routines [slow_hist](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#slow_hist) and [slow_avg](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#slow_avg)
+# to the e582lib.geolocate library and replace them with [fast_hist](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#fast_hist) which uses numpy vector operations np.searchsorted and np.bincount, and [fast_avg](https://clouds.eos.ubc.ca/~phil/courses/eosc582/_modules/e582lib/geolocate.html#fast_hist) which uses [numba](http://numba.pydata.org/)
+# 
+# 2. with those functions we can regrid the entire image and plot it using the python [basemap](http://matplotlib.org/basemap/#) module
+#    
+#    
+# Some topics we briefly introduce here and will return to in more detail in the future
+# 
+#     a. numba
+#     b. keyword argument unpacking
+#     c. palettes and normalized colormaps
+#     d. masked arrays
+#     e. map projections
+#     f. operations along axes
+#     g. IPython magic operations like %timeit
+# 
 
 # # Repeat the raw image plot from satellite_III
 

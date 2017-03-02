@@ -7,7 +7,7 @@
 # 
 # https://oceancolor.gsfc.nasa.gov/docs/technical/ocean_level-3_smi_products.pdf
 
-# In[13]:
+# In[1]:
 
 from netCDF4 import Dataset
 import numpy as np
@@ -77,7 +77,7 @@ bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],                  fontsize=10,
 
 # ### write a function that returns slices to extract a lon/lat box
 
-# In[ ]:
+# In[5]:
 
 def find_box(lon,lat,ll_lat,ll_lon,ur_lat,ur_lon):
     """
@@ -122,12 +122,12 @@ def find_box(lon,lat,ll_lat,ll_lon,ur_lat,ur_lon):
 
 # ### Pick a box in the Pacific NW and set up the math
 
-# In[5]:
+# In[6]:
 
 ur_lat=50
 ur_lon=-120
-ll_lat=40
-ll_lon=-130
+ll_lat=20
+ll_lon=-170
 
 row_slice,col_slice=find_box(lon,lat,ll_lat,ll_lon,ur_lat,ur_lon)
 lat_slice=latvals[row_slice,col_slice]
@@ -139,7 +139,7 @@ basemap_args=dict(llcrnrlat=lat_slice[-1,0],llcrnrlon=lon_slice[-1,0],
 
 # ### Plot the box to make sure we're getting the geolocation right
 
-# In[6]:
+# In[7]:
 
 fig, ax = plt.subplots(1,1,figsize=(12,12))
 basemap_args.update(dict(resolution='i',ax=ax))
@@ -147,7 +147,7 @@ bmap = Basemap(**basemap_args)
 xvals, yvals=bmap(lon_slice,lat_slice)
 par_slice=par[row_slice,col_slice]
 vmin= 0
-vmax= 20
+vmax= 50
 the_norm=matplotlib.colors.Normalize(vmin=vmin,vmax=vmax,clip=False)
 cs=bmap.pcolormesh(xvals,yvals,par_slice,cmap=cmap,norm=the_norm)
 colorbar=fig.colorbar(cs, shrink=0.5, pad=0.05,extend='both')
@@ -159,7 +159,7 @@ bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],                  fontsize=10,
 
 # ### note that basemap returns x,y in degrees
 
-# In[7]:
+# In[17]:
 
 fig, ax = plt.subplots(1,1,figsize=(14,14))
 cs=ax.pcolormesh(xvals,yvals,par_slice,cmap=cmap,norm=the_norm)
@@ -168,7 +168,7 @@ colorbar=fig.colorbar(cs, shrink=0.5, pad=0.05,extend='both')
 
 # ### Now repeat, using pyproj with the eqc projection
 
-# In[8]:
+# In[9]:
 
 src_crs=dict(units='m',proj='eqc',datum='WGS84')
 src_proj=pyproj.Proj(src_crs)
@@ -176,7 +176,7 @@ src_proj=pyproj.Proj(src_crs)
 
 # ### note the units are meters
 
-# In[9]:
+# In[10]:
 
 p_xvals,p_yvals=src_proj(lon_slice,lat_slice)
 fig, ax = plt.subplots(1,1,figsize=(14,14))
@@ -190,7 +190,7 @@ colorbar=fig.colorbar(cs, shrink=0.5, pad=0.05,extend='both')
 # So now -- do a reprojection from pyproj eqc to pyproj laea  -- keep the lon,lat of the map
 # corners the same in the new projection and the same number of pixels in the destination raster
 
-# In[10]:
+# In[11]:
 
 from pyresample import image, geometry
 
@@ -228,7 +228,7 @@ dst_extent
 
 # ### plot the reprojected image as a raw bitmap
 
-# In[11]:
+# In[12]:
 
 fig,ax=plt.subplots(1,1,figsize=(12,12))
 ax.imshow(result_data_nn,cmap=cmap,norm=the_norm,origin='upper');
@@ -236,7 +236,7 @@ ax.imshow(result_data_nn,cmap=cmap,norm=the_norm,origin='upper');
 
 # ### Put the coastline on the map
 
-# In[15]:
+# In[13]:
 
 ll_dict=dict(llcrnrlat=llcrnrlat,llcrnrlon=llcrnrlon,urcrnrlat=urcrnrlat,
                   urcrnrlon=urcrnrlon)
@@ -256,24 +256,24 @@ result_masked=np.ma.masked_invalid(result_data_nn)
 bmap.pcolormesh(xvals,yvals,result_masked,cmap=cmap,norm=the_norm)
 bmap.drawcoastlines();
 parallels=np.arange(40, 60, 2)
-meridians=np.arange(-130, -120,2)
+meridians=np.arange(-170, -120,10)
 bmap.drawparallels(parallels, labels=[1, 0, 0, 0],                  fontsize=10, latmax=90)
-bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],                  fontsize=10, latmax=90);
+bmap.drawmeridians(meridians, labels=[1, 1, 0, 1],                  fontsize=10, latmax=90);
 
 
 # ### unlike epsg:4326 -- basemap and pyproj agree on the details of this projection
 
-# In[16]:
+# In[14]:
 
 bmap.projparams
 
 
-# In[18]:
+# In[15]:
 
 test=pyproj.Proj(bmap.projparams)
 
 
-# In[19]:
+# In[16]:
 
 test.srs
 
