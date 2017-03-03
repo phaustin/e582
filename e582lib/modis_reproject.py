@@ -170,10 +170,8 @@ def modisl1b_resample(mxd02file,mxd03file,chan_list,fill_value= -99999.):
     #
     #  here's the dictionary we need for basemap
     #
-    a, b = pyresample.plot.ellps2axis('wgs84')
-    rsphere = (a, b)
     basemap_args=dict()
-    basemap_args['rsphere'] = rsphere
+    basemap_args['ellps'] = 'WGS84'
     basemap_args['llcrnrlon'] = llcrnrlon
     basemap_args['llcrnrlat'] = llcrnrlat
     basemap_args['urcrnrlon'] = urcrnrlon
