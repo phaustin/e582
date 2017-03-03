@@ -163,10 +163,10 @@ landmask=np.empty_like(maskVals)
 nrows,ncols=landmask.shape
 for i in range(nrows):
     for j in range(ncols):
-        landmask[i,j]=bits_stripping(6,2,maskVals[i,j])
+        landmask[i,j]=bits_stripping(1,2,maskVals[i,j])
 
 
-# In[4]:
+# In[3]:
 
 plt.close('all')        
 fig,ax=plt.subplots(1,1,figsize=(12,8))
