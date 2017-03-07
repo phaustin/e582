@@ -214,10 +214,10 @@ def modisl1b_resample(mxd02file,mxd03file,chan_list,fill_value= -99999.):
     channels = kd_tree.resample_nearest(swath_def, input_array,
                                       area_def, radius_of_influence=5000, nprocs=2,fill_value=fill_value)
     #
-    # replace the negative number used for fill_value with np.nan
+    # replace the  number used for fill_value with np.nan
     #
-    fill_value = np.array([np.nan],dtype=np.float32)[0]
-    channels[channels<0]=fill_value
+    nan_fill_value = np.array([np.nan],dtype=np.float32)[0]
+    channels[channels==fill_value]=nan_fill_value
     print('running modisl1b_resample: here are the channels to be resampled')
     for index in range(num_chans):
         print('channel and mean {} {}'.format(chan_list[index],np.nanmean(channels[:,:,index].ravel())))

@@ -17,10 +17,9 @@ functions:
 import h5py
 import numpy as np
 import pyproj
-import pyresample
+from affine import Affine
 from pyresample import kd_tree, geometry
 import json
-import pdb
 
 
 def subsample(*datalist, lats=None, lons=None, llcrnr=None, urcrnr=None):
@@ -188,7 +187,7 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
               dictionary with projection information for basemap
 
            geotiff_args: dict
-              dictionary with projection information for geotiff
+              dictionary with projection information for geotiff/rasterio
 
            fill_value: float32
               fill value for missing data in channels (these resampled pixels are set to
@@ -227,10 +226,8 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     #
     #  here's the dictionary we need for basemap
     #
-    a, b = pyresample.plot.ellps2axis('wgs84')
-    rsphere = (a, b)
     basemap_args = dict()
-    basemap_args['rsphere'] = rsphere
+    basemap_args['ellps'] = 'WGS84'
     basemap_args['llcrnrlon'] = llcrnrlon
     basemap_args['llcrnrlat'] = llcrnrlat
     basemap_args['urcrnrlon'] = urcrnrlon
@@ -318,6 +315,7 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
         width=width,
         height=height,
         adfgeotransform=adfgeotransform,
+        affine_transform=Affine.from_gdal(*adfgeotransform),
         proj4_string=proj4_string,
         proj_id=proj_id)
     out_dict = dict(
@@ -330,6 +328,7 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     return out_dict
 
 
+    
 def write_h5(out_file=None,
              channels=None,
              area_def_args=None,

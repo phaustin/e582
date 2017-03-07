@@ -49,7 +49,7 @@ result_dict.keys()
 chan31=result_dict['channels'][:,:,0]
 
 
-# In[9]:
+# In[6]:
 
 vmin=0
 vmax=10.
@@ -80,7 +80,7 @@ with warnings.catch_warnings():
     cax,kw = matplotlib.colorbar.make_axes(ax,location='bottom',pad=0.05,shrink=0.7)
     out=fig.colorbar(col,cax=cax,extend='both',**kw)
     out.set_label('Chan 31 radiance (W/m^2/micron/sr)',size=20)
-    ax.set_title('Chan 31 radiance vancouver',size=25)
+    ax.set_title('Chan 31 radiance',size=25)
     print(kw)
 
 
@@ -92,7 +92,7 @@ Tbright = planckInvert(wavel,chan31_mks)
 Tbright = Tbright - 273.15 #convert to Centigrade
 
 
-# In[10]:
+# In[8]:
 
 vmin=5
 vmax=12
@@ -123,7 +123,7 @@ with warnings.catch_warnings():
     cax,kw = matplotlib.colorbar.make_axes(ax,location='bottom',pad=0.05,shrink=0.7)
     out=fig.colorbar(col,cax=cax,extend='both',**kw)
     out.set_label('Brightness temperature (deg C)',size=20)
-    ax.set_title('Chan 31 brightness Vancouver',size=25)
+    ax.set_title('Chan 31 brightness temp',size=25)
     print(kw)
 
 
