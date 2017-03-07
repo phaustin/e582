@@ -14,6 +14,7 @@ import textwrap
 from mpl_toolkits.basemap import Basemap
 import pyproj
 
+
 def find_corners(lats, lons):
     """
     guess values for the upper right and lower left corners of the
@@ -55,21 +56,21 @@ def find_corners(lats, lons):
     # 2040 x 1354 becomes 2040 x 1353
     #
     try:
-        lon_diff=np.fabs(np.diff(lons,axis=1))
+        lon_diff = np.fabs(np.diff(lons, axis=1))
         #
         # sort accross columns
         #
         lon_diff.sort(axis=1)
-        max_diff_lon=np.max(lon_diff[:,-1])
+        max_diff_lon = np.max(lon_diff[:, -1])
         #
         # find latitude diffs across rows
         # diff will be 2039 x 1354
         #
-        lat_diff=np.fabs(np.diff(lats,axis=0))
+        lat_diff = np.fabs(np.diff(lats, axis=0))
         lat_diff.sort(axis=0)
-        max_diff_lat=np.max(lat_diff[-1,:])
+        max_diff_lat = np.max(lat_diff[-1, :])
         text =\
-        """
+            """
         space between pixels
         --------------------
 
@@ -80,14 +81,15 @@ def find_corners(lats, lons):
         print(out)
     except:
         pass
-    out_dict=dict(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,
-             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,
-             lat_1=llcrnrlat,lat_2=urcrnrlat,lat_0=(llcrnrlat+urcrnrlat)/2.,
-             lon_0=(llcrnrlon + urcrnrlon)/2.)
+    out_dict = dict(llcrnrlon=llcrnrlon, llcrnrlat=llcrnrlat,
+                    urcrnrlon=urcrnrlon, urcrnrlat=urcrnrlat,
+                    lat_1=llcrnrlat, lat_2=urcrnrlat, lat_0=(
+                        llcrnrlat + urcrnrlat) / 2.,
+                    lon_0=(llcrnrlon + urcrnrlon) / 2.)
     return out_dict
 
 
-def make_plot(lcc_values,lat_sep=5,lon_sep=5):
+def make_plot(lcc_values, lat_sep=5, lon_sep=5):
     """
       set up the basic map projection details with coastlines and meridians
       return the projection object for further plotting
@@ -106,7 +108,7 @@ def make_plot(lcc_values,lat_sep=5,lon_sep=5):
 
       Returns
       -------
-    
+
       Basemap projection object for plotting
     """
     proj = Basemap(**lcc_values)
@@ -122,66 +124,66 @@ def make_plot(lcc_values,lat_sep=5,lon_sep=5):
     return proj
 
 
-def fast_hist(data_vec,minval,maxval,numbins=None,binsize=None):
+def fast_hist(data_vec, minval, maxval, numbins=None, binsize=None):
     """
     bin data_vec into numbins evenly spaced bins from left edge
     minval to right edge maxval
-    
+
     Parameters
     ----------
-    
+
     data_vec: numpy vector (float)
        data/pixels to be binned -- 1-d
-       
+
     numbins:  int
        number of histogram bins
     minval:  float
         left edge
     maxval: float
         right edge
-        
+
     Returns
     -------
       dictionary with keys:
-      
+
       index_vec: ndarray 1-d float
         same size as data_vec, with entries containing bin number
         if data is smaller than left edge, missing value is -999
         if data is larger than right edge, missing value is -888
-        
+
       count_vec: ndarray 1-d  int
         size numbins, with number of counts in each bin
-      
+
       centers_vec: ndarray 1-d float
         center of bins, length numbins
 
       edges_vec: ndarray 1-d float
         size numbins+1 containing bin edges
-    
+
       lowcount: int
          number of pixels smaller than left edge
-      
+
       high count: 
          number of pixels larger than right edge
     """
     if numbins is None:
-        numbins=int(np.ceil((maxval - minval)/binsize))
+        numbins = int(np.ceil((maxval - minval) / binsize))
     else:
-        binsize= (maxval - minval)/numbins
-    bin_edges=[minval + (i*binsize) for i in range(numbins+1)]
+        binsize = (maxval - minval) / numbins
+    bin_edges = [minval + (i * binsize) for i in range(numbins + 1)]
     bin_edges = np.array(bin_edges)
-    bin_centers = (bin_edges[1:] + bin_edges[:-1])/2.
+    bin_centers = (bin_edges[1:] + bin_edges[:-1]) / 2.
     #
     # searchsorted reserves index 0 for undercounts and index numbins + 1
     # for overcounts.  The insertion occurs to the right, so we need to
     # subtract 1 to get the left edge
     #
-    bin_index = np.searchsorted(bin_edges,data_vec.ravel())
-    bin_count = np.bincount(bin_index,minlength=(numbins + 2))
-    lowcount=bin_count[0]
-    highcount=bin_count[-1]
+    bin_index = np.searchsorted(bin_edges, data_vec.ravel())
+    bin_count = np.bincount(bin_index, minlength=(numbins + 2))
+    lowcount = bin_count[0]
+    highcount = bin_count[-1]
     bin_count = bin_count[1:-1]
-    good_bins = np.arange(0,len(bin_count))
+    good_bins = np.arange(0, len(bin_count))
     hit = bin_count > 0
     good_bins = good_bins[hit]
     #
@@ -189,16 +191,17 @@ def fast_hist(data_vec,minval,maxval,numbins=None,binsize=None):
     # replace these with -999 and -888
     #
     bin_index = bin_index - 1
-    under_count= bin_index == -1
+    under_count = bin_index == -1
     bin_index[under_count] = -999
     over_count = bin_index == numbins
     bin_index[over_count] = -888
-    out = dict(index_vec=bin_index,count_vec=bin_count,edges_vec=bin_edges,
-               centers_vec=bin_centers,lowcount=lowcount,highcount=highcount,good_bins=good_bins)
+    out = dict(index_vec=bin_index, count_vec=bin_count, edges_vec=bin_edges,
+               centers_vec=bin_centers, lowcount=lowcount, highcount=highcount, good_bins=good_bins)
     return out
 
-@numba.jit('void(int32[:],int32[:],float32[:],int32[:,:],float32[:,:],b1)',nopython=True)
-def numba_avg(lat_indices,lon_indices,raw_data,bin_count,gridded_image,bad_neg):
+
+@numba.jit('void(int32[:],int32[:],float32[:],int32[:,:],float32[:,:],b1)', nopython=True)
+def numba_avg(lat_indices, lon_indices, raw_data, bin_count, gridded_image, bad_neg):
     """
     return a image binned by latitude and longitude
 
@@ -207,7 +210,7 @@ def numba_avg(lat_indices,lon_indices,raw_data,bin_count,gridded_image,bad_neg):
 
        lat_indices: vector int32
           latitude bin number for every pixel
- 
+
        lon_indices: vector int32
           longitude bin numer for every pixel
 
@@ -224,9 +227,9 @@ def numba_avg(lat_indices,lon_indices,raw_data,bin_count,gridded_image,bad_neg):
        bad_neg: bool
           optional flag -- if True then negative numbers are flagged as np.nan
     """
-    for n in range(len(lat_indices)): #lat_indices and lon_indices both size of raw data
-        bin_row=lat_indices[n]
-        bin_col=lon_indices[n]
+    for n in range(len(lat_indices)):  # lat_indices and lon_indices both size of raw data
+        bin_row = lat_indices[n]
+        bin_col = lon_indices[n]
         #
 
         # if the data is flagged as missing, assign that bin cell a value of np.nan
@@ -239,17 +242,18 @@ def numba_avg(lat_indices,lon_indices,raw_data,bin_count,gridded_image,bad_neg):
                 continue
             gridded_image[bin_row, bin_col] += raw_data[n]
             bin_count[bin_row, bin_col] += 1
-            
+
     for row in range(gridded_image.shape[0]):
         for col in range(gridded_image.shape[1]):
             if bin_count[row, col] > 0:
-                gridded_image[row, col]=gridded_image[row, col]/bin_count[row, col] 
+                gridded_image[row, col] = gridded_image[row,
+                                                        col] / bin_count[row, col]
             else:
-                gridded_image[row, col]=np.nan
+                gridded_image[row, col] = np.nan
 
 
-@numba.jit('void(int32[:],int32[:],int32[:,:])',nopython=True)
-def numba_counts(lat_indices,lon_indices,bin_count):
+@numba.jit('void(int32[:],int32[:],int32[:,:])', nopython=True)
+def numba_counts(lat_indices, lon_indices, bin_count):
     """
     return counts in latitude and longitude bins
 
@@ -258,7 +262,7 @@ def numba_counts(lat_indices,lon_indices,bin_count):
 
        lat_indices: vector int32
           latitude bin number for every pixel
- 
+
        lon_indices: vector int32
           longitude bin numer for every pixel
 
@@ -267,9 +271,9 @@ def numba_counts(lat_indices,lon_indices,bin_count):
           number of values in each bin of gridded_image
 
     """
-    for n in range(len(lat_indices)): #lat_indices and lon_indices both size of raw data
-        bin_row=lat_indices[n]
-        bin_col=lon_indices[n]
+    for n in range(len(lat_indices)):  # lat_indices and lon_indices both size of raw data
+        bin_row = lat_indices[n]
+        bin_col = lon_indices[n]
         #
 
         # if the data is flagged as missing, assign that bin cell a value of np.nan
@@ -279,13 +283,13 @@ def numba_counts(lat_indices,lon_indices,bin_count):
             continue
         else:
             bin_count[bin_row, bin_col] += 1
-                
 
-def fast_avg(lat_hist,lon_hist,data_vec,bad_neg=True):
+
+def fast_avg(lat_hist, lon_hist, data_vec, bad_neg=True):
     """
 
     use numba_avg to average values binned by lat_hist and lon_hist
-    
+
     Parameters
     ----------
 
@@ -311,23 +315,23 @@ def fast_avg(lat_hist,lon_hist,data_vec,bad_neg=True):
 
 
     """
-    num_lat_bins=len(lat_hist['edges_vec']) -1
-    num_lon_bins = len(lon_hist['edges_vec']) -1
-    gridded_image=np.zeros([num_lat_bins, num_lon_bins], dtype=np.float32)
-    bin_count=np.zeros([num_lat_bins, num_lon_bins], dtype=np.int32)
-    lat_indices=lat_hist['index_vec'].astype(np.int32)
-    lon_indices=lon_hist['index_vec'].astype(np.int32)
-    data_vec=data_vec.astype(np.float32)
-    numba_avg(lat_indices,lon_indices,data_vec,bin_count,gridded_image,bad_neg)
+    num_lat_bins = len(lat_hist['edges_vec']) - 1
+    num_lon_bins = len(lon_hist['edges_vec']) - 1
+    gridded_image = np.zeros([num_lat_bins, num_lon_bins], dtype=np.float32)
+    bin_count = np.zeros([num_lat_bins, num_lon_bins], dtype=np.int32)
+    lat_indices = lat_hist['index_vec'].astype(np.int32)
+    lon_indices = lon_hist['index_vec'].astype(np.int32)
+    data_vec = data_vec.astype(np.float32)
+    numba_avg(lat_indices, lon_indices, data_vec,
+              bin_count, gridded_image, bad_neg)
     return gridded_image
 
 
-
-def fast_count(lat_hist,lon_hist):
+def fast_count(lat_hist, lon_hist):
     """
 
     use numba_counts to count values binned by lat_hist and lon_hist
-    
+
     Parameters
     ----------
 
@@ -347,16 +351,16 @@ def fast_count(lat_hist,lon_hist):
 
 
     """
-    num_lat_bins=len(lat_hist['edges_vec']) -1
-    num_lon_bins = len(lon_hist['edges_vec']) -1
-    bin_count=np.zeros([num_lat_bins, num_lon_bins], dtype=np.int32)
-    lat_indices=lat_hist['index_vec'].astype(np.int32)
-    lon_indices=lon_hist['index_vec'].astype(np.int32)
-    numba_counts(lat_indices,lon_indices,bin_count)
+    num_lat_bins = len(lat_hist['edges_vec']) - 1
+    num_lon_bins = len(lon_hist['edges_vec']) - 1
+    bin_count = np.zeros([num_lat_bins, num_lon_bins], dtype=np.int32)
+    lat_indices = lat_hist['index_vec'].astype(np.int32)
+    lon_indices = lon_hist['index_vec'].astype(np.int32)
+    numba_counts(lat_indices, lon_indices, bin_count)
     return bin_count
-    
-    
-def find_bins(lat_hist,lon_hist,lat_index,lon_index):
+
+
+def find_bins(lat_hist, lon_hist, lat_index, lon_index):
     """
     identify all pixels that have lons in bin lon_index
     and lats in bin lat_index -- called by slow_avg
@@ -382,23 +386,23 @@ def find_bins(lat_hist,lon_hist,lat_index,lon_index):
     pixel_list: list of ints
         indices of pixels with lon/lats in the specified lon/lat histogram bin
     """
-    keep_lat=[]
-    keep_lon=[]
+    keep_lat = []
+    keep_lon = []
 
-    for count,the_index in enumerate(lat_hist['index_vec']):
+    for count, the_index in enumerate(lat_hist['index_vec']):
         if the_index == lat_index:
             keep_lat.append(count)
-    for count,the_index in enumerate(lon_hist['index_vec']):
+    for count, the_index in enumerate(lon_hist['index_vec']):
         if the_index == lon_index:
             keep_lon.append(count)
-    pixel_list=np.intersect1d(keep_lat,keep_lon)
+    pixel_list = np.intersect1d(keep_lat, keep_lon)
     return pixel_list
 
 
-def slow_avg(lat_hist,lon_hist,data_vec):
+def slow_avg(lat_hist, lon_hist, data_vec):
     """
     use pure python to average values binned by lat_hist and lon_hist
-    
+
     Parameters
     ----------
 
@@ -419,94 +423,95 @@ def slow_avg(lat_hist,lon_hist,data_vec):
     gridded_image:  2d array (float)
         average values of data_vec pixels on lat_hist, lon_hist grid
     """
-    num_lat_bins=len(lat_hist['edges_vec']) -1
-    num_lon_bins = len(lon_hist['edges_vec']) -1
-    gridded_image=np.full([num_lat_bins,num_lon_bins],np.nan,dtype=np.float32)
+    num_lat_bins = len(lat_hist['edges_vec']) - 1
+    num_lon_bins = len(lon_hist['edges_vec']) - 1
+    gridded_image = np.full(
+        [num_lat_bins, num_lon_bins], np.nan, dtype=np.float32)
     for lat_bin in range(num_lat_bins):
         for lon_bin in range(num_lon_bins):
             #
             # find the pixel numbers that belong in this bin
             #
-            pixel_list=find_bins(lat_hist,lon_hist,lat_bin,lon_bin)
+            pixel_list = find_bins(lat_hist, lon_hist, lat_bin, lon_bin)
             if len(pixel_list) > 0:
                 #
                 # find the mean radiance if there are pixels
                 #
-                gridded_image[lat_bin,lon_bin] = data_vec[pixel_list].mean()
+                gridded_image[lat_bin, lon_bin] = data_vec[pixel_list].mean()
     return gridded_image
 
 
-def slow_hist(data_vec,minval,maxval,numbins=None,binsize=None):
+def slow_hist(data_vec, minval, maxval, numbins=None, binsize=None):
     """
     bin data_vec into numbins evenly spaced bins from left edge
     minval to right edge maxval
-    
+
     Parameters
     ----------
-    
+
     data_vec: numpy vector (float)
        data/pixels to be binned -- 1-d
-       
+
     numbins:  int
        number of histogram bins
     minval:  float
         left edge
     maxval: float
         right edge
-        
+
     Returns
     -------
       dictionary with keys:
-      
+
       index_vec: ndarray 1-d float
         same size as data_vec, with entries containing bin number
         if data is smaller than left edge, missing value is -999
         if data is larger than right edge, missing value is -888
-        
+
       count_vec: ndarray 1-d  int
         size numbins, with number of counts in each bin
-      
+
       edges_vec: ndarray 1-d float
         size numbins+1 containing bin edges
-    
+
       lowcount: int
          number of pixels smaller than left edge
-      
+
       high count: 
          number of pixels larger than right edge
     """
     if numbins is None:
-        numbins=int(np.ceil((maxval - minval)/binsize))
+        numbins = int(np.ceil((maxval - minval) / binsize))
     else:
-        binsize= (maxval - minval)/numbins
-    bin_edges=[minval + (i*binsize) for i in range(numbins+1)]
+        binsize = (maxval - minval) / numbins
+    bin_edges = [minval + (i * binsize) for i in range(numbins + 1)]
     bin_edges = np.array(bin_edges)
-    bin_count = np.zeros([numbins,],dtype=np.int)
-    bin_index = np.zeros(data_vec.shape,dtype = np.int)
+    bin_count = np.zeros([numbins, ], dtype=np.int)
+    bin_index = np.zeros(data_vec.shape, dtype=np.int)
     bin_index[:] = -1
-    lowcount=0
-    highcount=0 
-   
+    lowcount = 0
+    highcount = 0
+
     for i in range(len(data_vec)):
-        float_bin =  ((data_vec[i] - minval) /binsize)
+        float_bin = ((data_vec[i] - minval) / binsize)
         if float_bin < 0:
-            lowcount+=1
-            bin_index[i]= -999.
+            lowcount += 1
+            bin_index[i] = -999.
             continue
         if float_bin >= numbins:
             highcount += 1
             bin_index[i] = -888.
             continue
         int_bin = int(float_bin)
-        bin_count[int_bin]+=1
-        bin_index[i]=int_bin
-    out = dict(index_vec=bin_index,count_vec=bin_count,edges_vec=bin_edges,
-             lowcount=lowcount,highcount=highcount)
-    
+        bin_count[int_bin] += 1
+        bin_index[i] = int_bin
+    out = dict(index_vec=bin_index, count_vec=bin_count, edges_vec=bin_edges,
+               lowcount=lowcount, highcount=highcount)
+
     return out
 
 
-def xy_to_col_row(x,y,transform):
+def xy_to_col_row(x, y, transform):
     """
     given x,y coordinates and the the asdfgeotransform from the modis_to_h5 file
     return the col, row of  the x,y point
@@ -527,7 +532,7 @@ def xy_to_col_row(x,y,transform):
        column and row of the pixel
 
     """
-    corner_x,pix_width,row_rot,corner_y,col_rot,pix_height=transform
+    corner_x, pix_width, row_rot, corner_y, col_rot, pix_height = transform
     col = (x - corner_x) / pix_width
     #
     # chop off the decimal
@@ -538,16 +543,17 @@ def xy_to_col_row(x,y,transform):
     # chop off the decimal
     #
     row = np.floor(row)
-    return col.astype(np.int),row.astype(np.int)
-    
-def col_row_to_xy(col,row,transform):
-    corner_x,pix_width,row_rot,corner_y,col_rot,pix_height=transform
+    return col.astype(np.int), row.astype(np.int)
+
+
+def col_row_to_xy(col, row, transform):
+    corner_x, pix_width, row_rot, corner_y, col_rot, pix_height = transform
     x = (col * pix_width) + corner_x
     y = (row * pix_height) + corner_y
-    return x,y
+    return x, y
 
 
-def trim_track(x,y,image,transform,x0=0,y0=0):
+def trim_track(x, y, image, transform, x0=0, y0=0):
     """
     find x,y indices that are inside image
 
@@ -573,14 +579,14 @@ def trim_track(x,y,image,transform,x0=0,y0=0):
     in_box: logical vecto
        vector of length len(x) -- true if index in image
     """
-    x,y=np.asarray(x),np.asarray(y)
+    x, y = np.asarray(x), np.asarray(y)
     x = x - x0
-    y= y- y0
-    col,row = xy_to_col_row(x,y,transform)
-    in_box=[]
-    for the_row,the_col in zip(row,col):
+    y = y - y0
+    col, row = xy_to_col_row(x, y, transform)
+    in_box = []
+    for the_row, the_col in zip(row, col):
         try:
-            if np.isnan(image[the_row,the_col]):
+            if np.isnan(image[the_row, the_col]):
                 #
                 # missing data, don't plot
                 #
@@ -592,10 +598,11 @@ def trim_track(x,y,image,transform,x0=0,y0=0):
                 in_box.append(True)
         except IndexError:
             in_box.append(False)
-    in_box=np.array(in_box)
+    in_box = np.array(in_box)
     return in_box
 
-def gc_distance(lons,lats):
+
+def gc_distance(lons, lats):
     """
     find the distance between a set of lon,lat points
     in km using a great circle
@@ -608,17 +615,17 @@ def gc_distance(lons,lats):
 
     Returns
 
-    distance: vector float  
+    distance: vector float
        vector of length len(lons) with distance beteen points (km)
 
     """
-    meters2km=1.e3
-    great_circle=pyproj.Geod(ellps='WGS84')
-    distance=[0]
-    start=(lons[0],lats[0])
-    for index in np.arange(1,len(lons)):
-        azi12,azi21,step= great_circle.inv(lons[index-1],lats[index-1],
-                                           lons[index],lats[index])
-        distance.append(distance[index-1] + step)
-    distance=np.array(distance)/meters2km
+    meters2km = 1.e3
+    great_circle = pyproj.Geod(ellps='WGS84')
+    distance = [0]
+    start = (lons[0], lats[0])
+    for index in np.arange(1, len(lons)):
+        azi12, azi21, step = great_circle.inv(lons[index - 1], lats[index - 1],
+                                              lons[index], lats[index])
+        distance.append(distance[index - 1] + step)
+    distance = np.array(distance) / meters2km
     return distance
