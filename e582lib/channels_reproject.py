@@ -130,6 +130,10 @@ def find_corners(lats,lons):
     urcrnrllat: latitude (deg N)  of the upper right corner
     lat_0:  latitude of center of scene
     lon_0:  longitude of center of the scene
+    lon_list: list (float)
+        [llcrnrlon,urcrnrlon]
+    lat_list: list
+        [llcrnrlat,urcrnrlat]
     """
 
     min_lat, min_lon = np.min(lats.ravel()), np.min(lons.ravel())
@@ -242,15 +246,6 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     area_id = 'granule'
     area_name = 'modis swath 5min granule'
     #
-    # here are all the arguments pyresample needs to regrid the swath
-    #
-    #
-    shape_tup=chan_array.shape
-    if len(shape_tup)==2:
-        chan_array=chan_array[...,np.newaxis]
-        shape_tup=chan_array.shape
-    num_chans = shape_tup[2]
-    #
     # now project all the images onto the lambert map
     #
     
@@ -290,10 +285,6 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     #
     fill_value = np.array([np.nan], dtype=np.float32)[0]
     channels[channels < 0] = fill_value
-    print('running resample_chans: here are the mean values of the channels to be resampled')
-    for index in range(num_chans):
-        print('channum and mean {} {}'.format(
-            index, np.nanmean(channels[:, :, index].ravel())))
     #
     # replace negative fill_value with np.nan (32 bit)
     #
@@ -310,7 +301,7 @@ def resample_channels(chan_array, lat_array, lon_array,corner_dict, fill_value=-
     ]
     proj4_string = area_def.proj4_string
     proj_id = area_def.proj_id
-    height, width, num_chans = channels.shape
+    height, width = channels.shape[:2]
     geotiff_args = dict(
         width=width,
         height=height,
@@ -376,7 +367,7 @@ def write_h5(out_file=None,
     basemap_string = json.dumps(basemap_args, indent=4)
     print('inside write_h5: area_def --\n{}--\n'.format(area_def_args))
     area_def_string = json.dumps(area_def_args, indent=4)
-    height, width, num_chans = channels.shape
+    height, width = channels.shape[:2]
     with h5py.File(out_file, 'w') as f:
         group = f.create_group('channels')
         for index,chan_name in enumerate(chan_list):
