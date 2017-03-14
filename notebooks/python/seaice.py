@@ -54,7 +54,7 @@ from pathlib import Path
 
 # ### Reading in the data
 # 
-# 0) use glob.glob to get all files starting with EASE
+# 0) use Path.glob to get all files starting with EASE
 # 
 # 1) use [pathlib.Path](http://blog.danwin.com/using-python-3-pathlib-for-managing-filenames-and-directories/) to separate the file name and use as a dictionary key
 # 
@@ -72,12 +72,27 @@ from pathlib import Path
 
 # In[2]:
 
+#
+# we are in the notebooks folder
+#
 dirpath=Path('.')
+#
+# jump up one directory and look in the seaice_data folder
+# to find all files starting with EASE
+#
 ease_files=dirpath.glob('../seaice_data/EASE*')
 data_dict={}
 for a_file in ease_files:
-    with open(a_file,'rb') as infile:
+    #
+    # in python 3.5, need to convert the Path object
+    # in python 3.6, don't need to do this since open can
+    # handle Path objects
+    #
+    with open(str(a_file),'rb') as infile:
         filestring=str(a_file)
+        #
+        # we don't want the high reolution or time data files
+        #
         if filestring.find('NH') > -1:
             continue
         if filestring.find('TIM') > -1:
