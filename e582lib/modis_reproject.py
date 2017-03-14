@@ -127,10 +127,13 @@ def modisl1b_resample(mxd02file,mxd03file,chan_list,fill_value= -99999.):
             hdf_fill_value=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name].attrs['_FillValue']
             chan=chan.astype(np.float32)
             #
-            # problem with modis fill_value -- says it should be 65535 but it is actually 65531
+            # problem with modis fill_value for channel 29 -- says it should be 65535 but it is actually 65531
             # accept anything larger than 60000
             #
-            hit = chan > 60000
+            if hdf_fill_value == 65535:
+                hit = chan > 65530
+            else:
+                hit = chan == hdf_fill_value
             chan[hit]=np.nan
             scale=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name].attrs[scale_name][...]
             offset=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name].attrs[offset_name][...]
