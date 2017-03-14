@@ -49,11 +49,14 @@ from rasterio.transform import from_bounds
 from pyresample import kd_tree,image, geometry
 from e582lib.map_slices import make_xy
 import pyproj
+from pathlib import Path
 
 
 # ### Reading in the data
 # 
-# 1) use glob.glob to get all files starting with EASE
+# 0) use glob.glob to get all files starting with EASE
+# 
+# 1) use [pathlib.Path](http://blog.danwin.com/using-python-3-pathlib-for-managing-filenames-and-directories/) to separate the file name and use as a dictionary key
 # 
 # 2) skip the high resolutioin files (with NH in their name) and the time files (with TIM)
 # 
@@ -69,21 +72,29 @@ import pyproj
 
 # In[2]:
 
-file_list = glob.glob('./seaice_data/EASE*')
+dirpath=Path('.')
+ease_files=dirpath.glob('../seaice_data/EASE*')
 data_dict={}
-for a_file in file_list:
+for a_file in ease_files:
     with open(a_file,'rb') as infile:
-        if a_file.find('NH') > -1:
+        filestring=str(a_file)
+        if filestring.find('NH') > -1:
             continue
-        if a_file.find('TIM') > -1:
+        if filestring.find('TIM') > -1:
             continue
+        #
+        # separate out the filename to use as
+        # a dictionary key
+        #
+        key=a_file.parts[-1]
+        print('key is: {}'.format(key))
         the_bytes=infile.read()
         the_string=bytearray(the_bytes)
         the_array=np.frombuffer(the_string,dtype=np.uint16)
         the_array.shape=[721,721]
         the_array=the_array.astype(np.float32)
         the_array=the_array/10.
-        data_dict[a_file]=the_array
+        data_dict[key]=the_array
 
 
 # ### Mapping the data
@@ -110,6 +121,11 @@ orig_extent=[-cornerx,-cornery,cornerx,cornery]
 
 # In[4]:
 
+print(list(data_dict.keys()))
+
+
+# In[5]:
+
 #
 # get the first filename
 #
@@ -124,7 +140,7 @@ nrows,ncols=masked_temps.shape
 
 # ### plot the whole array
 
-# In[ ]:
+# In[6]:
 
 fig,ax=plt.subplots(1,1,figsize=(12,12))
 basemap_args=dict(epsg=3408,width=2*cornerx*shrink,height=2*cornerx*shrink,ax=ax,resolution='l')
@@ -168,7 +184,7 @@ fig.suptitle('Brightness temperature for {}'.format(file_name),y=0.92);
 
 # ### Reduce the domain by half
 
-# In[ ]:
+# In[7]:
 
 newcornerx=cornerx/2.
 newcornery=newcornerx
@@ -180,7 +196,7 @@ new_extent=[-newcornerx,-newcornerx,newcornerx,newcornerx]
 # Also rotate the image so the central longitude is 90 deg W.  Since this is no longer epsg:3408, we
 # need to enter the other epsg:3408 parameters by hand instead of using the shortcut
 
-# In[ ]:
+# In[8]:
 
 radius=6371228
 new_crs=dict(proj='laea',lat_0=90,lon_0= -90,a=radius,b=radius,units='m')
@@ -191,7 +207,7 @@ new_basemap_args=dict(projection='laea',lat_0=90,lon_0= -90,rsphere=(radius,radi
 # 
 # Note that I make a copy of new_basemap_args so I can use new_basemap_args as the template for other plots
 
-# In[ ]:
+# In[9]:
 
 fig,ax=plt.subplots(1,1,figsize=(10,10))
 #
@@ -214,7 +230,7 @@ bmap_new.plot(van_x,van_y,'ro',markersize=10);
 # This looks ok, so zoom to the new domain.  To keep the pixel resolution at about
 # 25 km, make the new array 360 x 360.  Use an 18 km zone of influence for the neighbors.
 
-# In[ ]:
+# In[10]:
 
 newrows=360
 newcols=newrows
@@ -236,7 +252,7 @@ result_data_nn = to_nn.image_data
 
 # ### check the size of the remapped pixels
 
-# In[ ]:
+# In[11]:
 
 ll_x,ll_y,ur_x,ur_y=new_extent
 pixel_size=(ur_x - ll_x)/newcols
@@ -245,7 +261,7 @@ print('approximate pixel size is: {:5.2f} km'.format(pixel_size*1.e-3))
 
 # ### make the final plot
 
-# In[ ]:
+# In[12]:
 
 fig,ax=plt.subplots(1,1,figsize=(12,12))
 basemap_args=dict(new_basemap_args)
@@ -270,7 +286,7 @@ bmap.plot(van_x,van_y,'ro',markersize=10);
 fig.suptitle('Brightness temperature for {}'.format(file_name),y=0.9);
 
 
-# In[ ]:
+# In[13]:
 
 bmap.projparams
 
