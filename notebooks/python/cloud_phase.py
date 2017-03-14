@@ -91,7 +91,7 @@ cax.set_ticklabels(labels)
 phase=phase.astype(np.float32)
 
 
-# In[10]:
+# In[8]:
 
 from e582lib.channels_reproject import resample_channels
 from e582lib.channels_reproject import find_corners
@@ -104,7 +104,7 @@ phase_gridded[hit]=np.nan
 
 # ### map the gridded phase array
 
-# In[12]:
+# In[9]:
 
 from e582lib.map_slices import make_basemap_xy
 transform=result_dict['geotiff_args']['affine_transform']
@@ -127,6 +127,7 @@ bmap.drawparallels(parallels, labels=[1, 0, 0, 0],
                        fontsize=10, latmax=90)
 bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
                        fontsize=10, latmax=90);
+fig.savefig('cloud_phase_06.png')
 
 
 # In[ ]:

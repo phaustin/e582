@@ -124,10 +124,20 @@ def modisl1b_resample(mxd02file,mxd03file,chan_list,fill_value= -99999.):
         
         with h5py.File(mxd02file,'r') as h5_file:
             chan=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name][index,:,:]
+            hdf_fill_value=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name].attrs['_FillValue']
+            chan=chan.astype(np.float32)
+            #
+            # problem with modis fill_value -- says it should be 65535 but it is actually 65531
+            # accept anything larger than 60000
+            #
+            hit = chan > 60000
+            chan[hit]=np.nan
             scale=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name].attrs[scale_name][...]
             offset=h5_file['MODIS_SWATH_Type_L1B']['Data Fields'][field_name].attrs[offset_name][...]
             chan_calibrated =(chan - offset[index])*scale[index]
             chan_calibrated = chan_calibrated.astype(np.float32)  #convert from 64 bit to 32bit to save space
+            print('in e582lib.modis_resample: found {} bad pixels'.format(np.sum(np.isnan(chan_calibrated))))
+            chan_calibrated=np.ma.masked_invalid(chan_calibrated)
             radiance_list.append(chan_calibrated)
     for index,chan in enumerate(radiance_list):
         print('index and mean {} {}'.format(index,np.mean(chan.ravel())))
@@ -212,12 +222,14 @@ def modisl1b_resample(mxd02file,mxd03file,chan_list,fill_value= -99999.):
     # here is the resample step using 5 km region of influence (see pyresample docs)
     #
     channels = kd_tree.resample_nearest(swath_def, input_array,
-                                      area_def, radius_of_influence=5000, nprocs=2,fill_value=fill_value)
+                                         area_def, radius_of_influence=25000, nprocs=2,fill_value=None)
+    # channels = kd_tree.resample_gauss(swath_def, input_array,
+    #                                     area_def, radius_of_influence=50000,sigmas=[25000,25000],nprocs=2,fill_value=None)
     #
     # replace the  number used for fill_value with np.nan
     #
-    nan_fill_value = np.array([np.nan],dtype=np.float32)[0]
-    channels[channels==fill_value]=nan_fill_value
+    # nan_fill_value = np.array([np.nan],dtype=np.float32)[0]
+    # channels[channels==fill_value]=nan_fill_value
     print('running modisl1b_resample: here are the channels to be resampled')
     for index in range(num_chans):
         print('channel and mean {} {}'.format(chan_list[index],np.nanmean(channels[:,:,index].ravel())))

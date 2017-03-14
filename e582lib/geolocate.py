@@ -11,7 +11,7 @@
 import numpy as np
 import numba
 import textwrap
-from mpl_toolkits.basemap import Basemap
+from  mpl_toolkits.basemap import Basemap
 import pyproj
 
 def find_corners(lats, lons):
@@ -508,14 +508,14 @@ def slow_hist(data_vec,minval,maxval,numbins=None,binsize=None):
 
 def xy_to_col_row(x,y,transform):
     """
-    given x,y coordinates and the the asdfgeotransform from the modis_to_h5 file
+    given x,y coordinates and the asdfgeotransform from the modis_to_h5 file
     return the col, row of  the x,y point
 
     Parameters
     ----------
 
     x, y: float
-       x and y mapprojection coordinates after any easting and northing have been removed
+       x and y map projection coordinates after any easting and northing have been removed
 
     transform: dict
         geotiff_args['adfgeotransform'] in the modis_to_h5 file
@@ -541,6 +541,26 @@ def xy_to_col_row(x,y,transform):
     return col.astype(np.int),row.astype(np.int)
     
 def col_row_to_xy(col,row,transform):
+    """
+    given x,y coordinates and the the asdfgeotransform from the modis_to_h5 file
+    return the col, row of  the x,y point
+
+    Parameters
+    ----------
+
+    col, row: ints
+       column and row of the pixel
+    
+    transform: dict
+        geotiff_args['adfgeotransform'] in the modis_to_h5 file
+
+    Returns
+    -------
+
+    x, y: float
+       x and y map projection coordinates after any easting and northing have been removed
+
+    """
     corner_x,pix_width,row_rot,corner_y,col_rot,pix_height=transform
     x = (col * pix_width) + corner_x
     y = (row * pix_height) + corner_y
