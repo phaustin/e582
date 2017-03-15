@@ -68,7 +68,6 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
         temppath=Path(tempfile)
         print('writing temporary file {}'.format(temppath))
         response = requests.get(url, stream=True)
-
         #
         # treat a 'Not Found' response differently, since you might wnat to catch
         # this and continue
