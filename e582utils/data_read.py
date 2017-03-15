@@ -69,13 +69,20 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
         print('writing temporary file {}'.format(temppath))
         response = requests.get(url, stream=True)
 
+        #
+        # treat a 'Not Found' response differently, since you might wnat to catch
+        # this and continue
+        #
         if not response.ok:
             if response.reason=='Not Found':
                 the_msg='requests.get() returned "Not found" with filename {}'.format(filename)
                 raise NoDataException(the_msg)
             else:
+                #
+                # if we get some other response, raise a general exception
+                #
                 the_msg='requests.get() returned {} with filename {}'.format(response.reason,filename)
-                raise Exception
+                raise Exception(the_msg)
             
         for block in response.iter_content(1024):
             if not block:
