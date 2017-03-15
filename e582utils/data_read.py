@@ -73,6 +73,10 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
         # this and continue
         #
         if not response.ok:
+            #
+            # clean up the temporary file
+            #
+            temppath.unlink()
             if response.reason=='Not Found':
                 the_msg='requests.get() returned "Not found" with filename {}'.format(filename)
                 raise NoDataException(the_msg)
