@@ -31,6 +31,9 @@ import requests
 from pathlib import Path
 import shutil
 
+class NoDataException(Exception):
+    pass
+
 def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads'):
     """
     copy file filename from http://clouds.eos.ubc.ca/~phil/courses/atsc301/downloads to 
@@ -62,22 +65,28 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
     tempfile = str(filepath) + '_tmp'
     temppath = Path(tempfile)
     with open(tempfile, 'wb') as localfile:
+        temppath=Path(tempfile)
+        print('writing temporary file {}'.format(temppath))
         response = requests.get(url, stream=True)
 
         if not response.ok:
-            print('response: ',response)
-            raise Exception('Something is wrong, requests.get() failed with filename {}'.format(filename))
-
+            if response.reason=='Not Found':
+                the_msg='requests.get() returned "Not found" with filename {}'.format(filename)
+                raise NoDataException(the_msg)
+            else:
+                the_msg='requests.get() returned {} with filename {}'.format(response.reason,filename)
+                raise Exception
+            
         for block in response.iter_content(1024):
             if not block:
                 break
 
             localfile.write(block)
             
-    the_size=temppath.stat().st_size
-    if the_size < 10.e3:
-        print('Warning -- your file is tiny (smaller than 10 Kbyte)\nDid something go wrong?')
-    shutil.move(str(temppath),str(filepath))
+        the_size=temppath.stat().st_size
+        if the_size < 10.e3:
+            print('Warning -- your file is tiny (smaller than 10 Kbyte)\nDid something go wrong?')
+        shutil.move(str(temppath),str(filepath))
     the_size=filepath.stat().st_size
     print('downloaded {}\nsize = {}'.format(filename,the_size))
     return None
