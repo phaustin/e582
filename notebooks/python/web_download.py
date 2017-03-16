@@ -30,7 +30,6 @@ for yearcount,year in enumerate(np.arange(2002,2018)):
                 time.sleep(3)
             except NoDataException as e:
                 print(e)
-                pass
         print('-'*20)
 
 

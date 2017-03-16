@@ -85,7 +85,7 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
                 # if we get some other response, raise a general exception
                 #
                 the_msg='requests.get() returned {} with filename {}'.format(response.reason,filename)
-                raise Exception(the_msg)
+                raise RuntimeError(the_msg)
             
         for block in response.iter_content(1024):
             if not block:
