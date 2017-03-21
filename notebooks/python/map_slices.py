@@ -295,25 +295,49 @@ the_norm=Normalize(vmin=vmin,vmax=vmax,clip=False)
 # Step 1, get the lat/lon corners for a 100 x 100 slice centered on lon_0, lat_0
 # and create a basemap instance with those corners
 
-# In[16]:
+# In[24]:
+
+ll_keys=['llcrnrlat','llcrnrlon','urcrnrlat','urcrnrlon']
+[basemap_args.pop(key,None) for key in ll_keys]
+basemap_args
+
+
+# In[36]:
 
 ll_dict,xy_dict,slice_dict=get_corners_centered(100,100,projection,transform)
-basemap_args.update(ll_dict)
-bmap = Basemap(**basemap_args)
+new_basemap_args=dict(basemap_args)
+width=xy_dict['ur_x'] - xy_dict['ll_x']
+height=xy_dict['ur_y']-xy_dict['ll_y']
+new_basemap_args['width']=width
+new_basemap_args['height']=height
+# new_basemap_args.update(ll_dict)
+# bmap = Basemap(**new_basemap_args)
+bmap_xy = Basemap(**new_basemap_args)
+bmap_xy.llcrnrx,bmap_xy.llcrnry,bmap_xy.urcrnrx,bmap_xy.urcrnry
+
+
+# In[35]:
+
+ll_dict,xy_dict,slice_dict=get_corners_centered(100,100,projection,transform)
+new_basemap_args=dict(basemap_args)
+new_basemap_args.update(ll_dict)
+bmap_ll = Basemap(**new_basemap_args)
+import pdir
+bmap_ll.llcrnrx,bmap_ll.llcrnry,bmap_ll.urcrnrx,bmap_ll.urcrnry
 
 
 # #### Step 2
 # 
 # make x,y arrays that cover every pixel in the remapped ndvi image
 
-# In[17]:
+# In[37]:
 
-height,width=ndvi.shape
+nrows,ncols=ndvi.shape
 ur_row=0
-ll_row=height
+ll_row=nrows
 ll_col=0
-ur_col=width
-xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform)
+ur_col=ncols
+xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap_xy,transform)
 
 
 # #### Step 3
@@ -326,9 +350,9 @@ xvals,yvals = make_basemap_xy(ur_row,ll_row,ll_col,ur_col,bmap,transform)
 row_slice,col_slice=slice_dict['row_slice'],slice_dict['col_slice']
 xvals_s,yvals_s,ndvi_s = xvals[row_slice,col_slice],yvals[row_slice,col_slice],ndvi[row_slice,col_slice]
 fig, ax = plt.subplots(1,1,figsize=(12,12))
-basemap_args['ax']=ax
-basemap_args['resolution'] = 'h'
-bmap = Basemap(**basemap_args)
+new_basemap_args['ax']=ax
+new_basemap_args['resolution'] = 'h'
+bmap = Basemap(**new_basemap_args)
 col=bmap.pcolormesh(xvals_s,yvals_s,ndvi_s,cmap=cmap,norm=the_norm)
 lat_sep,lon_sep= 0.5, 0.5
 parallels = np.arange(46, 51, lat_sep)
@@ -339,7 +363,7 @@ bmap.drawmeridians(meridians, labels=[0, 0, 0, 1],
                        fontsize=10, latmax=90);
 bmap.drawcoastlines();
 bmap.drawrivers();
-basemap_args
+new_basemap_args
 
 
 # ### Repeat with an arbitray slice that is off the lon_0, lat_0 center

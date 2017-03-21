@@ -167,7 +167,7 @@ height=width
 
 # ### Plot the 37V reprojection
 
-# In[25]:
+# In[7]:
 
 #
 # use the same colorbar for each image
@@ -230,9 +230,16 @@ bmap.drawcoastlines()
 fig.suptitle('Brightness temperature for {}'.format(file_name),y=0.9);
 
 
-# ### filter out latitudes south of 60 deg N latitude
+# ### Save this image for future plots
 
 # In[10]:
+
+np.savez('save19',temps19V=np.ma.filled(temps19V,np.nan))
+
+
+# ### filter out latitudes south of 60 deg N latitude
+
+# In[11]:
 
 lons,lats = bmap(xvals,yvals,inverse=True)
 south = lats < 60
@@ -250,7 +257,7 @@ ax[1].imshow(temps19V_sea,origin='upper',norm=the_norm,cmap=cmap);
 # Use the PIL library introduced in the color_palettes.ipynb notebook from week 3 to read the ocena mask (blue=255) from the RGB png file.
 # 
 
-# In[11]:
+# In[12]:
 
 from PIL import Image
 land_mask_file=next(dirpath.glob('../seaice_data/Nl.*.721x721.png'))
@@ -261,7 +268,7 @@ ax.imshow(img,origin='upper');
 
 # Use [pdir2](https://github.com/laike9m/pdir2) to get information about the image object
 
-# In[12]:
+# In[13]:
 
 import pdir
 print(pdir(img))
@@ -269,7 +276,7 @@ print(pdir(img))
 
 # ### turn the img into a numpy array
 
-# In[13]:
+# In[14]:
 
 mask=np.array(img)
 print(mask.shape)
@@ -277,7 +284,7 @@ print(mask.shape)
 
 # ### Grab the blue layer (last index 2) and set all ocean pixels to 1 and all land pixels to 0
 
-# In[14]:
+# In[15]:
 
 mask=np.array(img)
 fig,ax=plt.subplots(1,1,figsize=(10,10))
@@ -291,7 +298,7 @@ ax.imshow(ocean,origin='upper');
 
 # ### now reproject the mask
 
-# In[15]:
+# In[16]:
 
 ocean_mask,new_basemap_args,new_extent=do_project(ocean)
 ocean_mask=ocean_mask.astype(np.bool)
@@ -300,7 +307,7 @@ CS=ax.imshow(ocean_mask,origin='upper');
 out=fig.colorbar(CS)
 
 
-# In[16]:
+# In[17]:
 
 land=np.logical_not(ocean_mask)
 temps37V_sea[land]=np.nan
@@ -312,7 +319,7 @@ CS=ax[1].imshow(temps19V_sea,origin='upper',norm=the_norm,cmap=cmap)
 
 # ### Get rid of zero values at the pole
 
-# In[19]:
+# In[18]:
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -327,7 +334,7 @@ with warnings.catch_warnings():
 
 # fig,ax=plt.subplots(1,1,figsize=
 
-# In[24]:
+# In[19]:
 
 fig,ax=plt.subplots(1,1,figsize=(12,12))
 ax.plot(temps37V_sea,temps19V_sea,'bo');
