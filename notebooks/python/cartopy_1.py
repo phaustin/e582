@@ -14,11 +14,10 @@
 # 
 # 1) the way they create plotting axes
 # 
-# Basemap:  create the Basemap instance using bmap=Basemap(...), get the plotting axis
-# from bmap.ax
+# Basemap:  create the Basemap instance using bmap=Basemap(...,ax=ax),  redefine [plot and imshow](https://github.com/matplotlib/basemap/blob/master/lib/mpl_toolkits/basemap/__init__.py#L3255-L3283)
 # 
 # Cartopy, create the plotting axis by passing the projection to the axes constructor, which
-# creates a geoaxes subclass of the axes class:
+# creates a [geoaxes subclass](https://github.com/SciTools/cartopy/blob/master/lib/cartopy/mpl/geoaxes.py#L222-L234) of the axes class:
 # 
 #     fig, ax = plt.subplots(1, 1, figsize=(10,10),
 #                        subplot_kw={'projection': projection})
@@ -52,6 +51,7 @@ import matplotlib
 import cartopy
 from e582lib.map_slices import make_xy
 from rasterio.transform import from_bounds
+import pdir
 
 
 # ### projection and map coords don't change
@@ -91,7 +91,7 @@ ax.imshow(temp19V,origin='upper');
 # 
 # but shift the central longitude to center north america on plot
 
-# In[13]:
+# In[5]:
 
 globe = ccrs.Globe(ellipse=None, semimajor_axis=radius, semiminor_axis=radius)
 projection=ccrs.LambertAzimuthalEqualArea(central_latitude=90,central_longitude= -90,globe=globe)
@@ -122,7 +122,7 @@ ax.add_feature(cartopy.feature.GSHHSFeature(scale='coarse', levels=[1,2,3]));
 # 
 # Also add a colorbar at the bottom
 
-# In[9]:
+# In[10]:
 
 fig, ax = plt.subplots(1, 1, figsize=(10,10),
                        subplot_kw={'projection': projection})
@@ -138,6 +138,7 @@ cax,kw = matplotlib.colorbar.make_axes(ax,location='bottom',pad=0.05,shrink=0.7)
 out=fig.colorbar(cs,cax=cax,extend='both',**kw)
 out.set_label('Brightness temperature (K)',size=10)
 ax.set_title('19V Brightness temperature');
+print(ax.projection)
 
 
 # ### Repeat using pcolormesh, which requires x and y values in the laea projection
@@ -147,7 +148,7 @@ ax.set_title('19V Brightness temperature');
 # 
 # Position the colorbar at the side
 
-# In[11]:
+# In[8]:
 
 fig, ax = plt.subplots(1, 1, figsize=(10,10),
                        subplot_kw={'projection': projection})
