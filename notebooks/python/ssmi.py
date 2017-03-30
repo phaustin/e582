@@ -268,9 +268,9 @@ CWV1_19,      CWL1_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, 
 hist_SSMI(CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19)
 
 
-# In[12]:
+# In[23]:
 
-SSMI_map(lon, lat, CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19)
+SSMI_map(lon, lat, CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19,the_date='(Jan 1990)')
 
 
 # #### Jul
@@ -298,9 +298,9 @@ CWV7_19,      CWL7_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, 
 hist_SSMI(CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19)
 
 
-# In[16]:
+# In[24]:
 
-SSMI_map(lon, lat, CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19)
+SSMI_map(lon, lat, CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19,the_date='(July 1990)')
 
 
 # ## Zonal mean results
