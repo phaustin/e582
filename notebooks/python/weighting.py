@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from __future__ import division
 get_ipython().magic('matplotlib inline')
+get_ipython().system('printenv')
 
 
 # In[3]:

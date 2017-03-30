@@ -15,6 +15,8 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
+from e582utils.data_read import download
+from e582lib.SSMI import coef, emiss
 get_ipython().magic('matplotlib inline')
 
 
@@ -24,9 +26,15 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-# Function for histogram. 
-
 # In[4]:
+
+temp_file='bright_temps.h5'
+download(temp_file)
+
+
+# ### Function for histogram. 
+
+# In[5]:
 
 def hist_SSMI(CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19):
     
@@ -51,9 +59,9 @@ def hist_SSMI(CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19):
     ax2.set_title('(b) unfixed v.s. fixed CWL Histogram', fontsize=12, fontweight='bold')
 
 
-# Function for maps
+# ### Function for maps
 
-# In[5]:
+# In[21]:
 
 def single_map(ax):
     proj = Basemap(projection='moll', lon_0=180, resolution='c', ax=ax)
@@ -62,7 +70,7 @@ def single_map(ax):
     proj.drawparallels(np.arange(-90, 90, 30));
     return proj
     
-def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19):
+def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19,the_date='Jan 1990'):
     
     levCWV = np.arange(0, 80+5, 5); levCWL = np.arange(0, 0.7+0.07, 0.07)
 
@@ -73,15 +81,15 @@ def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL
 
     proj=single_map(ax1); x, y = proj(lon, lat)
     CS = proj.contourf(x, y, CWV_unfixed, levCWV, cmap=plt.cm.RdYlGn, extend='max')
-    ax1.set_title('(a.1) CWV unfixed (Jan 1990)', fontsize=12, fontweight='bold', y = 1.025)
+    ax1.set_title('(a.1) CWV unfixed {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
 
     proj=single_map(ax2); x, y = proj(lon, lat)
     CS = proj.contourf(x, y, CWV_both, levCWV, cmap=plt.cm.RdYlGn, extend='max')
-    ax2.set_title('(a.2) CWV fixed: both (Jan 1990)', fontsize=12, fontweight='bold', y = 1.025)
+    ax2.set_title('(a.2) CWV fixed: both {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
     
     proj=single_map(ax3); x, y = proj(lon, lat)
     CS = proj.contourf(x, y, CWV_19, levCWV, cmap=plt.cm.RdYlGn, extend='max')
-    ax3.set_title('(a.3) CWV fixed: 19 GHz only (Jan 1990)', fontsize=12, fontweight='bold', y = 1.025)   
+    ax3.set_title('(a.3) CWV fixed: 19 GHz only {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)   
     
     cax  = fig.add_axes([0.175, 0.05, 0.25, 0.02])
     CBar = fig.colorbar(CS, cax=cax, orientation='horizontal')
@@ -90,15 +98,15 @@ def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL
 
     proj=single_map(ax4); x, y = proj(lon, lat)
     CS = proj.contourf(x, y, CWL_unfixed, levCWL, cmap=plt.cm.gist_ncar_r, extend='max')
-    ax4.set_title('(b.1) CWL unfixed (Jan 1990)', fontsize=12, fontweight='bold', y = 1.025)
+    ax4.set_title('(b.1) CWL unfixed {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
     
     proj=single_map(ax5); x, y = proj(lon, lat)
     CS = proj.contourf(x, y, CWL_both, levCWL, cmap=plt.cm.gist_ncar_r, extend='max')
-    ax5.set_title('(b.2) CWL fixed: both (Jan 1990)', fontsize=12, fontweight='bold', y = 1.025)
+    ax5.set_title('(b.2) CWL fixed: both {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
     
     proj=single_map(ax6); x, y = proj(lon, lat)
     CS = proj.contourf(x, y, CWL_19, levCWL, cmap=plt.cm.gist_ncar_r, extend='max')
-    ax6.set_title('(b.3) CWL fixed: 19 GHz only (Jan 1990)', fontsize=12, fontweight='bold', y = 1.025)
+    ax6.set_title('(b.3) CWL fixed: 19 GHz only {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
     
     cax  = fig.add_axes([0.6, 0.05, 0.25, 0.02])
     CBar = fig.colorbar(CS, cax=cax, orientation='horizontal')
@@ -106,16 +114,11 @@ def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL
     CBar.set_label('CWL', fontsize=12)
 
 
-# #Retrieval functions
+# ## Retrieval functions
 # 
 # SSMI.py including functions calculates emissivity and absorption coefficient at at 19 and 37 GHz SSMI channel.
 # 
-# Code are Python version of <a href='http://www.aos.wisc.edu/~tristan/aos740.php'>**UW-Madison AOS-704**</a> 's FORTRAN77 code.
-
-# In[1]:
-
-from e582lib.SSMI import *
-
+# Code is Python version of <a href='http://www.aos.wisc.edu/~tristan/aos740.php'>**UW-Madison AOS-704**</a> 's FORTRAN77 code.
 
 # Approximation of windspeed and main retrieval function in Greenwald et al., 1993.
 
@@ -235,31 +238,24 @@ T37V  = 208.11*np.ones([1, 1])
 SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=4, correction='both')
 
 
-# Result **do not** agree with AOS 740 course content. But looks reasonable.
+# ### Full Retrival
 
-# #Full Retrival
-
-# ##Jan
+# #### Jan
 
 # In[9]:
 
-TB_obj = h5py.File('_data/bright_temps.h5', 'r')
+with h5py.File(temp_file, 'r') as TB_obj:
+    lat = TB_obj['lat'][:]
+    lon = TB_obj['lon'][:]
+    SST = TB_obj['jan/sst'][:]
+    T19H = TB_obj['jan/t19h'][:]
+    T19V = TB_obj['jan/t19v'][:]
+    T22V = TB_obj['jan/t22v'][:]
+    T37H = TB_obj['jan/t37h'][:]
+    T37V = TB_obj['jan/t37v'][:]
 
 
 # In[10]:
-
-lat = TB_obj['lat'][:]
-lon = TB_obj['lon'][:]
-SST = TB_obj['jan/sst'][:]
-T19H = TB_obj['jan/t19h'][:]
-T19V = TB_obj['jan/t19v'][:]
-T22V = TB_obj['jan/t22v'][:]
-T37H = TB_obj['jan/t37h'][:]
-T37V = TB_obj['jan/t37v'][:]
-TB_obj.close()
-
-
-# In[11]:
 
 theta = 53.1
 CWV1_unfixed, CWL1_unfixed = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=1)
@@ -267,54 +263,49 @@ CWV1_both,    CWL1_both    = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, 
 CWV1_19,      CWL1_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='19')
 
 
-# In[12]:
+# In[11]:
 
 hist_SSMI(CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19)
 
 
-# In[13]:
+# In[12]:
 
 SSMI_map(lon, lat, CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19)
 
 
-# ##Jul
+# #### Jul
+
+# In[13]:
+
+with h5py.File(temp_file, 'r') as TB_obj:
+    SST = TB_obj['july/sst'][:]
+    T19H = TB_obj['july/t19h'][:]
+    T19V = TB_obj['july/t19v'][:]
+    T22V = TB_obj['july/t22v'][:]
+    T37H = TB_obj['july/t37h'][:]
+    T37V = TB_obj['july/t37v'][:]
+
 
 # In[14]:
-
-TB_obj = h5py.File('_data/bright_temps.h5', 'r')
-
-
-# In[15]:
-
-SST = TB_obj['july/sst'][:]
-T19H = TB_obj['july/t19h'][:]
-T19V = TB_obj['july/t19v'][:]
-T22V = TB_obj['july/t22v'][:]
-T37H = TB_obj['july/t37h'][:]
-T37V = TB_obj['july/t37v'][:]
-TB_obj.close()
-
-
-# In[16]:
 
 CWV7_unfixed, CWL7_unfixed = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=1)
 CWV7_both,    CWL7_both    = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='both')
 CWV7_19,      CWL7_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='19')
 
 
-# In[17]:
+# In[15]:
 
 hist_SSMI(CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19)
 
 
-# In[18]:
+# In[16]:
 
 SSMI_map(lon, lat, CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19)
 
 
 # ## Zonal mean results
 
-# In[23]:
+# In[17]:
 
 CWV1z_19 = np.nanmean(CWV1_19, 1); CWL1z_19 = np.nanmean(CWL1_19, 1)
 CWV7z_19 = np.nanmean(CWV7_19, 1); CWL7z_19 = np.nanmean(CWL7_19, 1)

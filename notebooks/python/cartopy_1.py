@@ -93,8 +93,10 @@ ax.imshow(temp19V,origin='upper');
 
 # In[5]:
 
-globe = ccrs.Globe(ellipse=None, semimajor_axis=radius, semiminor_axis=radius)
-projection=ccrs.LambertAzimuthalEqualArea(central_latitude=90,central_longitude= -90,globe=globe)
+globe = ccrs.Globe(ellipse=None, semimajor_axis=radius, 
+                   semiminor_axis=radius)
+projection=ccrs.LambertAzimuthalEqualArea(central_latitude=90,
+                                          central_longitude= -90,globe=globe)
 print('pro4_params: ',projection.proj4_params)
 #Note that, unlike Basemap, cartopy doesn't add x_0 or y_0 to the projection
 

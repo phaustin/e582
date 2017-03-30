@@ -178,7 +178,7 @@ vmax=260
 the_norm=matplotlib.colors.Normalize(vmin=vmin,vmax=vmax,clip=False)
 
 
-# In[8]:
+# In[20]:
 
 file_name='EASE-F17-NL2014032A-V2.37V'
 temps37V=mapped_dict[file_name]
@@ -186,6 +186,7 @@ fig,ax=plt.subplots(1,1,figsize=(12,12))
 basemap_args=dict(new_basemap_args)
 basemap_args.update(dict(ax=ax,resolution='l',width=width,height=height))
 bmap=Basemap(**basemap_args)
+print('basemap axis is type: {}'.format(type(bmap.ax)))
 #bmap.imshow(result_data_nn,origin='upper')
 new_transform = from_bounds(bmap.llcrnrx,bmap.llcrnry,
                              bmap.urcrnrx,bmap.urcrnry,newcols,newrows)
