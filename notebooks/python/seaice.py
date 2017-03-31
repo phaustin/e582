@@ -89,7 +89,7 @@ for a_file in ease_files:
     # handle Path objects
     #
     with open(str(a_file),'rb') as infile:
-        filestring=str(a_file)
+        filestring=str(a_file)l
         #
         # we don't want the high reolution or time data files
         #

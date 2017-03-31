@@ -121,8 +121,8 @@ end_object = p.CaselessKeyword('end_object')
 group = p.CaselessKeyword('group')
 end_group = p.CaselessKeyword('end_group')
 end = p.CaselessKeyword('end')
-quoted_text = p.dblQuotedString.setParseAction(lambda t: t[0][1:-1].decode('string-escape'))
-symbol = p.sglQuotedString.setParseAction(lambda t: t[0][1:-1].decode('string-escape'))
+quoted_text = p.dblQuotedString.setParseAction(lambda t: t[0][1:-1])
+symbol = p.sglQuotedString.setParseAction(lambda t: t[0][1:-1])
 
 def validate_identifier(t):
     if t[0] in keywords:
