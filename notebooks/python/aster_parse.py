@@ -17,12 +17,14 @@
 #     Mont-Joli, Canada
 #     Andre.Gosselin@dfo-mpo.gc.ca
 
-# In[1]:
+# In[24]:
 
 import h5py
 from e582utils.parse_odl import parse_odl
 import pprint
 from e582utils.data_read import download
+import dateutil
+import datetime, pytz
 
 
 # In[2]:
@@ -39,7 +41,7 @@ download(filename)
 # parse_odl returns the key,value pairs as nested dictionaries, and converts
 # numbers to float
 
-# In[11]:
+# In[25]:
 
 keep_dict={}
 with h5py.File(filename,'r') as infile:
@@ -83,6 +85,34 @@ rectangle
 
 right_lon= keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']                 ['BOUNDINGRECTANGLE']['EASTBOUNDINGCOORDINATE']['VALUE']
 print(right_lon)
+
+
+# ### Convert the timestamp string to a datetime object
+
+# In[42]:
+
+image_date=keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']['SINGLEDATETIME']['CALENDARDATE']['VALUE']
+image_time=keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']['SINGLEDATETIME']['TIMEOFDAY']['VALUE']
+image_date,image_time
+
+
+# In[37]:
+
+image_dt=dateutil.parser.parse(image_date)
+hours,minutes,seconds=int(image_time[:2]),int(image_time[2:4]),float(image_time[4:9])
+seconds,milliseconds=divmod(seconds,1000)
+seconds,microseconds=int(seconds),int(milliseconds*1000)
+
+
+# In[40]:
+
+image_date=datetime.datetime(image_dt.year,image_dt.month,
+                             image_dt.day,hours,minutes,seconds,microseconds,tzinfo=pytz.utc)
+
+
+# In[41]:
+
+image_date
 
 
 # In[ ]:
