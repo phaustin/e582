@@ -12,4 +12,13 @@ pandas
 netCDF4
 h5py
 git
+tzlocal
+sphinx
+sphinx_bootstrap_theme
+rasterio
+cartopy
+basemap-data-hires
+#~/repos/sphinxcontrib-fulltoc/
+#/Users/phil/repos/sphinx-argparse
+
 

@@ -17,14 +17,15 @@
 #     Mont-Joli, Canada
 #     Andre.Gosselin@dfo-mpo.gc.ca
 
-# In[24]:
+# In[1]:
 
 import h5py
 from e582utils.parse_odl import parse_odl
 import pprint
 from e582utils.data_read import download
-import dateutil
+from dateutil.parser import parse
 import datetime, pytz
+pp=pprint.PrettyPrinter(indent=4)
 
 
 # In[2]:
@@ -41,7 +42,7 @@ download(filename)
 # parse_odl returns the key,value pairs as nested dictionaries, and converts
 # numbers to float
 
-# In[25]:
+# In[3]:
 
 keep_dict={}
 with h5py.File(filename,'r') as infile:
@@ -73,49 +74,52 @@ with open('metadata.txt','w') as outfile:
             key,pprint.pformat(value,indent=4,width=200)))
 
 
-# ### get an example value
+# ### Example: bounding rectangle in lat lon
 
 # In[6]:
 
 rectangle= keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']['BOUNDINGRECTANGLE']
-rectangle
+pp.pprint(rectangle)
 
 
-# In[13]:
+# In[7]:
 
 right_lon= keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']                 ['BOUNDINGRECTANGLE']['EASTBOUNDINGCOORDINATE']['VALUE']
 print(right_lon)
 
 
+# ### Bounding rectangle in UTM
+
+# In[8]:
+
+pp.pprint(keep_dict['productmetadata.1_GLOSDS']['PRODUCTGENERICMETADATA']                      ['SCENEFOURCORNERSMETERS'])
+
+
 # ### Convert the timestamp string to a datetime object
 
-# In[42]:
+# In[9]:
 
-image_date=keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']['SINGLEDATETIME']['CALENDARDATE']['VALUE']
-image_time=keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']['SINGLEDATETIME']['TIMEOFDAY']['VALUE']
+image_date=keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']                    ['SINGLEDATETIME']['CALENDARDATE']['VALUE']
+image_time=keep_dict['coremetadata.0_GLOSDS']['INVENTORYMETADATA']                      ['SINGLEDATETIME']['TIMEOFDAY']['VALUE']
 image_date,image_time
 
 
-# In[37]:
+# In[10]:
 
-image_dt=dateutil.parser.parse(image_date)
-hours,minutes,seconds=int(image_time[:2]),int(image_time[2:4]),float(image_time[4:9])
+image_dt=parse(image_date)
+hours,minutes,seconds=(int(image_time[:2]),
+                           int(image_time[2:4]),float(image_time[4:9]))
 seconds,milliseconds=divmod(seconds,1000)
 seconds,microseconds=int(seconds),int(milliseconds*1000)
 
 
-# In[40]:
+# In[11]:
 
-image_date=datetime.datetime(image_dt.year,image_dt.month,
+image_dt=datetime.datetime(image_dt.year,image_dt.month,
                              image_dt.day,hours,minutes,seconds,microseconds,tzinfo=pytz.utc)
 
 
-# In[41]:
+# In[12]:
 
-image_date
-
-
-# In[ ]:
-
-
+image_dt
 
