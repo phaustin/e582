@@ -18,6 +18,8 @@ sphinx_bootstrap_theme
 rasterio
 cartopy
 basemap-data-hires
+anaconda-client
+anaconda-build
 #~/repos/sphinxcontrib-fulltoc/
 #/Users/phil/repos/sphinx-argparse
 
