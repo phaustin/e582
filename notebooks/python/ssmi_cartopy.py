@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from e582utils.data_read import download
 from e582lib.SSMI import coef, emiss
+import cartopy.crs as ccrs
 get_ipython().magic('matplotlib inline')
 
 
@@ -30,6 +31,9 @@ warnings.filterwarnings('ignore')
 
 temp_file='bright_temps.h5'
 download(temp_file)
+sample_file='save_temps.npz'
+download(sample_file)
+sample_data=np.load(sample_file)
 
 
 # ### Function for histogram. 
@@ -61,55 +65,80 @@ def hist_SSMI(CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19):
 
 # ### Function for maps
 
+# #### first make an example map with data from initial run of notebook
+# 
+# set read_data=False for first run
+
 # In[6]:
 
-def single_map(lon,lat,data):
-    proj = Basemap(projection='moll', lon_0=180, resolution='c', ax=ax)
-    proj.drawcoastlines()
-    proj.drawmeridians(np.arange(0, 360, 60));
-    proj.drawparallels(np.arange(-90, 90, 30));
-    return proj
-    
+read_data=False
+if read_data:
+    sample_data=np.load('save_temps.npz')
+lons=sample_data['lon']
+lats=sample_data['lat']
+wv=sample_data['cw']
+
+
+# ### plot 2 plots on a 2x2 grid to demo plt.subplot2grid
+
+# In[7]:
+
+import functools
+moll_projection=ccrs.Mollweide(central_longitude=180)
+fig=plt.figure(figsize=(12,8))
+#
+#  make a new version of plt.subplot2grid with some of the keywords filled in
+#  using functools.partial
+#
+make_ax=functools.partial(plt.subplot2grid, colspan=1, 
+                          rowspan=1,projection=moll_projection)
+
+ax1=make_ax((2, 2), (0, 0))
+ax2=make_ax((2, 2), (1, 1))
+ax1.contourf(lons,lats,wv,transform=ccrs.PlateCarree());
+ax1.gridlines(linewidth=0.5)
+ax2.contourf(lons,lats,wv,transform=ccrs.PlateCarree());
+
+
+# In[8]:
+
+#-*- fill-column:300; truncate-lines: true -*-
 def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19,the_date='Jan 1990'):
     
     levCWV = np.arange(0, 80+5, 5); levCWL = np.arange(0, 0.7+0.07, 0.07)
-
+    cwl_pal=plt.cm.gist_ncar_r
+    cwv_pal = plt.cm.RdYlGn
     fig = plt.figure(figsize=(12, 8))
-    ax1=plt.subplot2grid((3, 2), (0, 0), colspan=1, rowspan=1); ax2=plt.subplot2grid((3, 2), (1, 0), colspan=1, rowspan=1)
-    ax3=plt.subplot2grid((3, 2), (2, 0), colspan=1, rowspan=1); ax4=plt.subplot2grid((3, 2), (0, 1), colspan=1, rowspan=1)
-    ax5=plt.subplot2grid((3, 2), (1, 1), colspan=1, rowspan=1); ax6=plt.subplot2grid((3, 2), (2, 1), colspan=1, rowspan=1)
-
-    proj=single_map(ax1); x, y = proj(lon, lat)
-    CS = proj.contourf(x, y, CWV_unfixed, levCWV, cmap=plt.cm.RdYlGn, extend='max')
-    ax1.set_title('(a.1) CWV unfixed {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
-
-    proj=single_map(ax2); x, y = proj(lon, lat)
-    CS = proj.contourf(x, y, CWV_both, levCWV, cmap=plt.cm.RdYlGn, extend='max')
-    ax2.set_title('(a.2) CWV fixed: both {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
+    ax1=make_ax((3, 2), (0, 0)); ax2=make_ax((3, 2), (1, 0))
+    ax3=make_ax((3, 2), (2, 0)); ax4=make_ax((3, 2), (0, 1))
+    ax5=make_ax((3, 2), (1, 1)); ax6=make_ax((3, 2), (2, 1))
     
-    proj=single_map(ax3); x, y = proj(lon, lat)
-    CS = proj.contourf(x, y, CWV_19, levCWV, cmap=plt.cm.RdYlGn, extend='max')
-    ax3.set_title('(a.3) CWV fixed: 19 GHz only {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)   
-    
+    axlist=[ax1,ax2,ax3,ax4,ax5,ax6]
+    title_list=['(a.1) CWV unfixed {}','(a.2) CWV fixed: both {}','(a.3) CWV fixed: 19 GHz only {}',
+                '(b.1) CWL unfixed {}','(b.2) CWL fixed: both {}','(b.3) CWL fixed: 19 GHz only {}']
+    title_list=[item.format(the_date) for item in title_list]
+    var_list=[CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL_19]
+    contour_list=[levCWV,levCWV,levCWV,levCWL,levCWL,levCWL]
+    pal_list=[cwv_pal,cwv_pal,cwv_pal,cwl_pal,cwl_pal,cwl_pal]
+    keep_colors=[]
+    for ax,var,nlev,pal,title in zip(axlist,var_list,contour_list,pal_list,title_list):
+        CS = ax.contourf(lon, lat, var, nlev,transform=ccrs.PlateCarree(),
+                         cmap=pal, extend='max')
+        keep_colors.append(CS)
+        ax.set_title(title, fontsize=12, fontweight='bold', y = 1.025)
+        ax.gridlines(linewidth=0.5)
+        
+    #
+    # vapor and liquid require separate colorbars
+    #
+
     cax  = fig.add_axes([0.175, 0.05, 0.25, 0.02])
-    CBar = fig.colorbar(CS, cax=cax, orientation='horizontal')
+    CBar = fig.colorbar(keep_colors[0], cax=cax, orientation='horizontal')
     CBar.ax.tick_params(axis='x', length=12.5)
     CBar.set_label('CWV $\mathrm{kg/m^2}$', fontsize=12)
-
-    proj=single_map(ax4); x, y = proj(lon, lat)
-    CS = proj.contourf(x, y, CWL_unfixed, levCWL, cmap=plt.cm.gist_ncar_r, extend='max')
-    ax4.set_title('(b.1) CWL unfixed {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
-    
-    proj=single_map(ax5); x, y = proj(lon, lat)
-    CS = proj.contourf(x, y, CWL_both, levCWL, cmap=plt.cm.gist_ncar_r, extend='max')
-    ax5.set_title('(b.2) CWL fixed: both {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
-    
-    proj=single_map(ax6); x, y = proj(lon, lat)
-    CS = proj.contourf(x, y, CWL_19, levCWL, cmap=plt.cm.gist_ncar_r, extend='max')
-    ax6.set_title('(b.3) CWL fixed: 19 GHz only {}'.format(the_date), fontsize=12, fontweight='bold', y = 1.025)
     
     cax  = fig.add_axes([0.6, 0.05, 0.25, 0.02])
-    CBar = fig.colorbar(CS, cax=cax, orientation='horizontal')
+    CBar = fig.colorbar(keep_colors[3], cax=cax, orientation='horizontal')
     CBar.ax.tick_params(axis='x', length=12.5)
     CBar.set_label('CWL', fontsize=12)
 
@@ -122,7 +151,7 @@ def SSMI_map(lon, lat, CWV_unfixed, CWV_both, CWV_19, CWL_unfixed, CWL_both, CWL
 
 # Approximation of windspeed and main retrieval function in Greenwald et al., 1993.
 
-# In[7]:
+# In[9]:
 
 # windspeed
 def wind_speed(sst, t19v, t22v, t37h, t37v):
@@ -224,7 +253,7 @@ def SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correct
     return CWV, CWL
 
 
-# In[8]:
+# In[10]:
 
 theta = 53.1
 # boardcasting because my retrival function supports 2D array
@@ -235,14 +264,12 @@ T22V  = 194.80*np.ones([1, 1])
 T37H  = 148.13*np.ones([1, 1])
 T37V  = 208.11*np.ones([1, 1])
 
-SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=4, correction='both')
-
 
 # ### Full Retrival
 
 # #### Jan
 
-# In[9]:
+# In[11]:
 
 with h5py.File(temp_file, 'r') as TB_obj:
     lat = TB_obj['lat'][:]
@@ -255,7 +282,7 @@ with h5py.File(temp_file, 'r') as TB_obj:
     T37V = TB_obj['jan/t37v'][:]
 
 
-# In[10]:
+# In[12]:
 
 theta = 53.1
 CWV1_unfixed, CWL1_unfixed = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=1)
@@ -263,19 +290,26 @@ CWV1_both,    CWL1_both    = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, 
 CWV1_19,      CWL1_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='19')
 
 
-# In[11]:
+# In[13]:
 
 hist_SSMI(CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19)
 
 
-# In[12]:
+# In[14]:
 
-SSMI_map(lon, lat, CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19,the_date='(Jan 1990)')
+write_data=True
+if write_data:
+    np.savez('save_temps',lon=lon,lat=lat,cw=CWV1_unfixed)
+
+
+# In[15]:
+
+SSMI_map(lon, lat, CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CWL1_19,the_date='(Jan 1990)');
 
 
 # #### Jul
 
-# In[13]:
+# In[16]:
 
 with h5py.File(temp_file, 'r') as TB_obj:
     SST = TB_obj['july/sst'][:]
@@ -286,26 +320,26 @@ with h5py.File(temp_file, 'r') as TB_obj:
     T37V = TB_obj['july/t37v'][:]
 
 
-# In[14]:
+# In[17]:
 
 CWV7_unfixed, CWL7_unfixed = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=1)
 CWV7_both,    CWL7_both    = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='both')
 CWV7_19,      CWL7_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='19')
 
 
-# In[15]:
+# In[18]:
 
 hist_SSMI(CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19)
 
 
-# In[16]:
+# In[19]:
 
 SSMI_map(lon, lat, CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19,the_date='(July 1990)')
 
 
 # ## Zonal mean results
 
-# In[17]:
+# In[20]:
 
 CWV1z_19 = np.nanmean(CWV1_19, 1); CWL1z_19 = np.nanmean(CWL1_19, 1)
 CWV7z_19 = np.nanmean(CWV7_19, 1); CWL7z_19 = np.nanmean(CWL7_19, 1)

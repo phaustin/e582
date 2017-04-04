@@ -20,7 +20,10 @@ cartopy
 basemap-data-hires
 anaconda-client
 anaconda-build
-#~/repos/sphinxcontrib-fulltoc/
-#/Users/phil/repos/sphinx-argparse
+psutil
+pyresample
+pyparsing
+#pip ~/repos/sphinxcontrib-fulltoc/
+#pip /Users/phil/repos/sphinx-argparse
 
 
