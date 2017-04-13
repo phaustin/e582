@@ -1,5 +1,4 @@
 #version 0.1
-anaconda-client
 jupyter
 notebook
 scipy
@@ -9,7 +8,7 @@ qtconsole
 numba
 matplotlib
 pandas
-netCDF4
+netcdf4
 h5py
 git
 tzlocal
@@ -17,13 +16,22 @@ sphinx
 sphinx_bootstrap_theme
 rasterio
 cartopy
+basemap
 basemap-data-hires
 anaconda-client
-anaconda-build
+#anaconda-build
 psutil
 pyresample
 pyparsing
+openpyxl
+requests
+pdir2
+pytest
+jupyter_contrib_nbextensions
+#pip install ~/repos/gtd_projects/michel-orgmode
 #pip ~/repos/sphinxcontrib-fulltoc/
 #pip /Users/phil/repos/sphinx-argparse
+#pip /Users/phil/repos/jupyter_contrib_nbextensions
+
 
 

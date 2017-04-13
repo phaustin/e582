@@ -49,6 +49,7 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
     Returns
     -------
 
+    temppath: filepath object of temporary file 
     Side effect: Creates a copy of that file in the local directory
     """
     url = '{}/{}'.format(root,filename)
@@ -73,20 +74,18 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
         # this and continue
         #
         if not response.ok:
-            #
-            # clean up the temporary file
-            #
-            temppath.unlink()
             if response.reason=='Not Found':
                 the_msg='requests.get() returned "Not found" with filename {}'.format(filename)
-                raise NoDataException(the_msg)
+                return temppath
             else:
                 #
                 # if we get some other response, raise a general exception
                 #
                 the_msg='requests.get() returned {} with filename {}'.format(response.reason,filename)
                 raise RuntimeError(the_msg)
-            
+                #
+            # clean up the temporary file
+            #
         for block in response.iter_content(1024):
             if not block:
                 break
@@ -100,6 +99,7 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
     the_size=filepath.stat().st_size
     print('downloaded {}\nsize = {}'.format(filename,the_size))
     return None
+
 
 def make_parser():
     """
