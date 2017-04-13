@@ -71,7 +71,7 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
             response = requests.get(url, stream=True)
             #
             # treat a 'Not Found' response differently, since you want to catch
-            # this and continue
+            # this and possibly continue with a new file
             #
             if not response.ok:
                 if response.reason=='Not Found':
@@ -89,22 +89,16 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
             for block in response.iter_content(1024):
                 if not block:
                     break
-
                 localfile.write(block)
-
-            the_size=temppath.stat().st_size
-            if the_size < 10.e3:
-                print('Warning -- your file is tiny (smaller than 10 Kbyte)\nDid something go wrong?')
-            shutil.move(str(temppath),str(filepath))
-        success=True
+        the_size=temppath.stat().st_size
+        print('downloaded {}\nsize = {}'.format(filename,the_size))
+        shutil.move(str(temppath),str(filepath))
+        if the_size < 10.e3:
+            print('Warning -- your file is tiny (smaller than 10 Kbyte)\nDid something go wrong?')
     except NoDataException as e:
-        success=False
         print(e)
         print('clean up: removing {}'.format(temppath))
         temppath.unlink()
-    if success:
-        the_size=filepath.stat().st_size
-        print('downloaded {}\nsize = {}'.format(filename,the_size))
     return None
 
 
