@@ -49,7 +49,6 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
     Returns
     -------
 
-    temppath: filepath object of temporary file 
     Side effect: Creates a copy of that file in the local directory
     """
     url = '{}/{}'.format(root,filename)
@@ -71,7 +70,7 @@ def download(filename,root='https://clouds.eos.ubc.ca/~phil/courses/atsc301/down
             print('writing temporary file {}'.format(temppath))
             response = requests.get(url, stream=True)
             #
-            # treat a 'Not Found' response differently, since you might wnat to catch
+            # treat a 'Not Found' response differently, since you want to catch
             # this and continue
             #
             if not response.ok:
