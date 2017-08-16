@@ -275,7 +275,7 @@ SSMI_map(lon, lat, CWV1_unfixed, CWV1_both, CWV1_19, CWL1_unfixed, CWL1_both, CW
 
 # #### Jul
 
-# In[13]:
+# In[ ]:
 
 with h5py.File(temp_file, 'r') as TB_obj:
     SST = TB_obj['july/sst'][:]
@@ -286,26 +286,26 @@ with h5py.File(temp_file, 'r') as TB_obj:
     T37V = TB_obj['july/t37v'][:]
 
 
-# In[14]:
+# In[ ]:
 
 CWV7_unfixed, CWL7_unfixed = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=1)
 CWV7_both,    CWL7_both    = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='both')
 CWV7_19,      CWL7_19      = SSMI_retrieval(SST, theta, T19H, T19V, T22V, T37H, T37V, iter_num=5, correction='19')
 
 
-# In[15]:
+# In[ ]:
 
 hist_SSMI(CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19)
 
 
-# In[16]:
+# In[ ]:
 
 SSMI_map(lon, lat, CWV7_unfixed, CWV7_both, CWV7_19, CWL7_unfixed, CWL7_both, CWL7_19,the_date='(July 1990)')
 
 
 # ## Zonal mean results
 
-# In[17]:
+# In[ ]:
 
 CWV1z_19 = np.nanmean(CWV1_19, 1); CWL1z_19 = np.nanmean(CWL1_19, 1)
 CWV7z_19 = np.nanmean(CWV7_19, 1); CWL7z_19 = np.nanmean(CWL7_19, 1)

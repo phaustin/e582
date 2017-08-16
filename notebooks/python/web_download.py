@@ -7,29 +7,25 @@
 # 
 # 2) try aqua (A) and tera (T) separately
 # 
-# 3) aqua data not available for 2002.  The website returns a 404 'Not found' error.  In this case make
-#    the download function throw a 'NoDataException'.  Since this error is expected, print the 
-#    exception and continue.   If any other response is received, stop the download
+# 3) aqua data not available for 2002.  The website returns a 404 'Not found' error, and the download function
+#    removes the tempfile and prints a message
 
-# In[ ]:
+# In[3]:
 
 import numpy as np
 import time
 root="https://oceandata.sci.gsfc.nasa.gov/cgi/getfile"
-from e582utils.data_read import download,NoDataException
+from e582utils.data_read2 import download,NoDataException
 for yearcount,year in enumerate(np.arange(2002,2018)):
     if yearcount > 1:
         break
     for count,day in enumerate(np.arange(1,366)):
-        if count > 3:
+        if count > 2:
             break
         for satellite in ['A','T']:
             filename='{}{}{:0>3}.L3m_DAY_PAR_par_4km.nc'.format(satellite,year,day)
-            try:
-                download(filename,root=root)
-                time.sleep(3)
-            except NoDataException as e:
-                print(e)
+            download(filename,root=root)
+            time.sleep(3)
         print('-'*20)
 
 

@@ -28,10 +28,16 @@ requests
 pdir2
 pytest
 jupyter_contrib_nbextensions
+rope
+autopep8
+yapf
+flake8
+xtensor
+dask
 #pip install ~/repos/gtd_projects/michel-orgmode
 #pip ~/repos/sphinxcontrib-fulltoc/
 #pip /Users/phil/repos/sphinx-argparse
-#pip /Users/phil/repos/jupyter_contrib_nbextensions
-
+# code is in /Users/phil/Library/Jupyter/nbextensions/usability/edit-emacs
+#pip install importmagic
 
 
