@@ -1,3 +1,11 @@
+conda info --all
+
+0. Make conda-forge the first repository
+
+    ```
+    conda config --prepend channels conda-forge
+    ```
+
 To reinstall conda from scratch with the A405 packages:
 
 1. Go to http://conda.pydata.org/miniconda.html and download the Python 3.5 version
