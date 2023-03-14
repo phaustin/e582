@@ -1,6 +1,0 @@
-c/c++ from microsoft
-emacs from hiro-sun
-git history from Don Jayamane
-list files from Don Jayamanne
-MagicPython from MathicStack
-Python from DonJayamanne
